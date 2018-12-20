@@ -2,21 +2,11 @@ const express = require("express");
 const app = express();
 const port = process.env.PORT || 7777;
 const bodyParser = require("body-parser");
-//const mongoose = require("mongoose");
+const mongoose = require("mongoose");
 const path = require("path");
 const methodOverriide = require("method-override");
-const mysql = require("mysql");
 
 //DB Setting
-//디비를 몽고에서 mysal로 변경
-const Client = mysql.createConnection(
-    host : "127.0.0.1",
-    port : "3306",
-    user : "root",
-    password : "anstnsp",
-    database : "mydb"
-});
-/*
 mongoose.Promise = global.Promise;
 mongoose.connect("mongodb://localhost/anstnsp", {useNewUrlParser : true});
 const db = mongoose.connection;
@@ -26,7 +16,6 @@ db.once('open', ()=>{
 db.on("error", (err)=>{
   console.log("DB ERROR :", err);
 });
- */
 
 
 
@@ -49,10 +38,10 @@ app.use(methodOverriide("_method"));
 //라우팅
 app.use("/", require("./router/home"));
 app.use("/user", require("./router/user"));
-
+app.use("/posts", require("./router/post"));
 
 //404에러 발생시
-app.use((req,res,netst) => {
+app.use( (req,res,next) => {
     let err = new Error('NOT FOUND');
     err.status = 404;
     next(err);

@@ -1,0 +1,29 @@
+<!-- views/users/index.ejs -->
+
+﻿<!DOCTYPE html>
+<html>
+ <head>
+  <% include ../partials/header %>
+ </head>
+ <body>
+  <% include ../partials/nav %>
+
+  <div class="container user user-index">
+
+   <div class="contentBox">
+    <h3 class="contentBoxTop">Users</h3>
+    <ul class="floats">
+     <% if(users == null || users.length == 0){ %>
+      <div class="noData" colspan=100> 유저가 없습니다.</div>
+     <% } %>
+     <% users.forEach(function(user) { %>
+      <li>
+       <a href="/user/<%= user.username %>"><%= user.username %></a>
+      </li>
+     <% }) %>
+    </ul>
+   </div>
+
+  </div> <!-- container end -->
+ </body>
+</html>
