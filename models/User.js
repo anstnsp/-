@@ -1,15 +1,18 @@
 // models/User.js
 const mongoose = require("mongoose");
+const bcrypt = require("bcrypt-nodejs");
 
 // schema // 1
 const userSchema = mongoose.Schema({
  username:{type:String, required:[true,"Username is required!"], unique:true},
- password:{type:String, required:[true,"Password is required!"], select:false},
+ password:{type:String, required:[true,"Password is required!"], select:false ,trim:true},
  name:{type:String, required:[true,"Name is required!"]},
  email:{type:String}
 },{
  toObject:{virtuals:true}
 });
+
+
 /*
 1. schema : require 에 true 대신 배열이 들어갔습니다. 첫번째는 true/false 값이고, 두번째는 에러메세지입니다. 
 그냥 true/false을 넣을 경우 기본 에러메세지가 나오고, 배열을 사용해서 custom(사용자정의) 에러메세지를 만들 수 있습니다.
@@ -18,14 +21,17 @@ password에는 select:false가 추가되었습니다. 기본설정은 자동으�
 */
 
 // virtuals // 2
+//비밀번호확인
 userSchema.virtual("passwordConfirmation")
 .get(function(){ return this._passwordConfirmation; })
-.set(function(value){ this._passwordConfirmation=value; });
+.set(function(value){this._passwordConfirmation=value; });
 
+//원래비밀번호
 userSchema.virtual("originalPassword")
 .get(function(){ return this._originalPassword; })
 .set(function(value){ this._originalPassword=value; });
 
+//현재비밀번호
 userSchema.virtual("currentPassword")
 .get(function(){ return this._currentPassword; })
 .set(function(value){ this._currentPassword=value; });
@@ -51,7 +57,7 @@ userSchema.path("password").validate(function(v) {
  // create user // 3-3
  if(user.isNew){ // 3-2
   if(!user.passwordConfirmation){
-   usertest.invalidate("passwordConfirmation", "Password Confirmation is required!");
+   user.invalidate("passwordConfirmation", "Password Confirmation is required!");
   }
   if(user.password !== user.passwordConfirmation) {
    user.invalidate("passwordConfirmation", "Password Confirmation does not matched!");
@@ -69,13 +75,30 @@ userSchema.path("password").validate(function(v) {
   if(!user.currentPassword){
    user.invalidate("currentPassword", "Current Password is required!");
   }
-  if(user.currentPassword && user.currentPassword != user.originalPassword){
-   user.invalidate("currentPassword", "Current Password is invalid!");
-  }
+     if(user.currentPassword && !bcrypt.compareSync(user.currentPassword, user.originalPassword)){ // 2
+         user.invalidate("currentPassword", "Current Password is invalid!");
+     }
   if(user.newPassword !== user.passwordConfirmation) {
    user.invalidate("passwordConfirmation", "Password Confirmation does not matched!");
   }
  }
+// hash password // 3
+    userSchema.pre("save", function (next){
+        var user = this;
+        console.log(user.isModified("password"));
+        if(!user.isModified("password")){ // 3-1
+            return next();
+        } else {
+            user.password = bcrypt.hashSync(user.password); // 3-2
+            return next();
+        }
+    });
+
+// model methods // 4
+    userSchema.methods.authenticate = function (password) {
+        var user = this;
+        return bcrypt.compareSync(password,user.password);
+    };
 });
 /*
 3-4. 회원정보 수정의 경우 current password값이 없는 경우, current password값이 original password랑 다른 경우, new password 와 password confirmation값이 다른 경우 invalidate합시다. 
@@ -84,3 +107,13 @@ userSchema.path("password").validate(function(v) {
 // model & export
 const User = mongoose.model("user",userSchema);
 module.exports = User;
+
+//function
+// encryptoHash = (password) => {
+//     //비밀번호 hash암호화 하여 저장
+//     let hash = crypto.createHash("sha256");
+//     hash.update(password);
+//     let hash_password = hash.digest("hex");
+//
+//     return hash_password;
+// }

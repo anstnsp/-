@@ -1,68 +1,36 @@
 const express = require("express");
 const router = express.Router();
-//const user = require("../controller/user");
+const userController = require("../controller/user");
 const auth = require("../auth/auth"); //passport를 통해 인증
 const User = require("../models/User");
 
-// Index // 1
-router.get("/", function(req, res){
-    User.find({})
-    .sort({username:1})
-    .exec(function(err, users){
-     if(err) return res.json(err);
-     res.render("users/index", {users:users});
+    //회원리스트
+    router.get("/", (req, res) =>{
+        userController.readUserList(req,res);
     });
+   // 회원가입페이지로이동
+   router.get("/new", (req, res) => {
+       userController.signupPage(req,res);
    });
    
-   // New
-   router.get("/new", function(req, res){
-    res.render("users/new", {user:{}});
+   //회원가입
+   router.post("/", (req, res) => {
+        userController.signupUser(req, res);
+   });
+
+   //회원정보보기
+   router.get("/:username", (req, res)=> {
+        userController.showUserInfo(req,res);
    });
    
-   // create
-   router.post("/", function(req, res){
-    User.create(req.body, function(err, user){
-     if(err) return res.json(err);
-     res.redirect("/users");
-    });
+   // 회원정보수정페이지
+   router.get("/:username/edit", (req, res) =>{
+        userController.editPage(req,res);
    });
    
-   // show
-   router.get("/:username", function(req, res){
-    User.findOne({username:req.params.username}, function(err, user){
-     if(err) return res.json(err);
-     res.render("users/show", {user:user});
-    });
-   });
-   
-   // edit
-   router.get("/:username/edit", function(req, res){
-    User.findOne({username:req.params.username}, function(err, user){
-     if(err) return res.json(err);
-     res.render("users/edit", {user:user});
-    });
-   });
-   
-   // update // 2
-   router.put("/:username",function(req, res, next){
-    User.findOne({username:req.params.username}) // 2-1
-    .select("password") // 2-2
-    .exec(function(err, user){
-     if(err) return res.json(err);
-   
-     // update user object
-     user.originalPassword = user.password;
-     user.password = req.body.newPassword? req.body.newPassword : user.password; // 2-3
-     for(var p in req.body){ // 2-4
-      user[p] = req.body[p];
-     }
-   
-     // save updated user
-     user.save(function(err, user){
-      if(err) return res.json(err);
-      res.redirect("/users/"+req.params.username);
-     });
-    });
+   //회원정보수정
+   router.put("/:username",(req, res) => {
+        userController.editUser(req,res);
    });
    
    module.exports = router;

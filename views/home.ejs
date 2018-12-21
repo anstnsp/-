@@ -7,10 +7,28 @@
   <% include ./partials/nav %>
   <div class="container home home-welcome">
    <div class="jumbotron">
-    <h1>MEN - 게시판</h1>
-    <P>이 사이트는 <a href="http://a-mean-blog.com/ko/blog/MEAN/MEN-게시판">http://a-mean-blog.com/ko/blog/MEAN/MEN-게시판</a>
-﻿에서 작성되었습니다! </p>
+    <h1>여기는 니 멋대로 할 수 있는 장소다. ㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋ</h1>
    </div>
+
+
+      <button class="optionModifyBtn">네이버 팝업</button>
   </div>
  </body>
 </html>
+<script>
+
+    $('.optionModifyBtn').click(function(event){  //버튼을 클릭 했을시 popupOpen 함수 출력
+        console.log('click');
+        popupOpen();
+    });
+   //팝업호출함수
+    function popupOpen(){
+        var url= "http://www.naver.com";    //팝업창에 출력될 페이지 URL
+        var winWidth = 700;
+        var winHeight = 600;
+        var popupOption= "width="+winWidth+", height="+winHeight;    //팝업창 옵션(optoin)
+        var myWindow = window.open(url,"TestName",popupOption);
+        //myWindow.document.write("<h1>"+myWindow.name+"</h1>");
+        return myWindow;
+    }
+</script>
