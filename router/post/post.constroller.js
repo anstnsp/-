@@ -1,4 +1,5 @@
-const Post = require("../models/Post");
+const Post = require("../../models/Post");
+
 
 /*
 .sort()함수는 string이나 object를 받아서 데이터를 오름차순으로 정렬하는데 -붙이면 내림차순입니다..

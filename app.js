@@ -1,3 +1,6 @@
+/* ========================
+||  LOAD THE DEPENDENCIES ||
+==========================*/
 const express = require("express");
 const app = express();
 const port = process.env.PORT || 7777;
@@ -6,9 +9,16 @@ const mongoose = require("mongoose");
 const path = require("path");
 const methodOverriide = require("method-override");
 
-//DB Setting
+/* ========================
+||    LOAD THE CONFIG     ||
+==========================*/
+const config = require('./config');
+
+/* ===========================
+||  CONNECT TO MONGODB SERVER ||
+=============================*/
 mongoose.Promise = global.Promise;
-mongoose.connect("mongodb://localhost/anstnsp", {useNewUrlParser : true});
+mongoose.connect(config.mongodbUri, {useNewUrlParser : true});
 const db = mongoose.connection;
 db.once('open', ()=>{
   console.log("DB connected!!");
@@ -39,6 +49,7 @@ app.use(methodOverriide("_method"));
 app.use("/", require("./router/home"));
 app.use("/user", require("./router/user"));
 app.use("/posts", require("./router/post"));
+app.use("/auth", require("./router/auth"));
 
 //404에러 발생시
 app.use( (req,res,next) => {
