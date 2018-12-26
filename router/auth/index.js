@@ -1,7 +1,8 @@
 const router = require('express').Router();
 const controller = require('./auth.controller');
 
-
-router.post("/", controller.login);
+//회원로그인
+router.post("/login", controller.login);
+router.get("/loginPage", controller.loginPage);
 
 module.exports = router;

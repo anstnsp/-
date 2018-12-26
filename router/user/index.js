@@ -13,7 +13,6 @@ router.get("/:username", controller.showUserInfo);
 router.get("/:username/edit", controller.editPage);
 //회원정보수정
 //router.put("/:username", controller.editUser);
-//로그인
-//router.post("/login", controller.loginUser);
+
 
 module.exports = router;
