@@ -12,22 +12,52 @@
 
 
       <button class="optionModifyBtn">네이버 팝업</button>
+      <button class="openNutax">누탁스열기</button>
+      <button class="openHyperExplorer">익스플로러열기</button>
   </div>
  </body>
 </html>
 <script>
+    let newName, n =0;
+    $(".openHyperExplorer").click(() => {
+        console.log("렛저렛저");
+        let url = "http://172.28.12.10:8080/";
+        popupOpen(url);
+    });
+
+    $(".openNutax").click((event) => {
+        console.log("누탁스열기 클릭했네?");
+        let url = "https://210.180.65.158:9440/console/#login";
+        popupOpen(url);
+    });
 
     $('.optionModifyBtn').click(function(event){  //버튼을 클릭 했을시 popupOpen 함수 출력
-        console.log('click');
-        popupOpen();
+        console.log('네이버');
+        let url = "http://www.naver.com";
+        popupOpen(url);
     });
+
+    newWindow = (frameName) => {
+        n +=1;
+        newName = frameName+n;
+
+    }
    //팝업호출함수
-    function popupOpen(){
-        var url= "http://www.naver.com";    //팝업창에 출력될 페이지 URL
-        var winWidth = 700;
-        var winHeight = 600;
-        var popupOption= "width="+winWidth+", height="+winHeight;    //팝업창 옵션(optoin)
-        var myWindow = window.open(url,"TestName",popupOption);
+    function popupOpen(openurl){
+        newWindow("test")
+        let url        = openurl;    //팝업창에 출력될 페이지 URL
+        let winWidth   = 700;
+        let winHeight  = 600;
+        let toolbar    = "no"; //도구모음 표시할지 여부
+        let status     = "yes";
+        let menubar    = "yes";
+        let fullscreen = "no"; //풀스크린으로 화면 출력 여부
+        let top        = 210;   //상단에서부터 팝업의 위치를 지정
+        let left       = 600;  //좌측부터 팝업의 위치를 지정
+        let location   = "no" //주소표시줄 표시여부
+        let scrollbars = "no" // 스크롤바 표시 여부 (내용이 창보다 클 경우)
+        let popupOption= "width="+winWidth+", height="+winHeight;    //팝업창 옵션(optoin)
+        let myWindow   = window.open(url,newName,popupOption);
         //myWindow.document.write("<h1>"+myWindow.name+"</h1>");
         return myWindow;
     }

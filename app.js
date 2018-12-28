@@ -25,11 +25,10 @@ const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
 const path = require("path");
 const methodOverriide = require("method-override");
+const session = require("express-session");
+const passport = require("passport");
 
-/* ========================
-||    LOAD THE CONFIG     ||
-==========================*/
-//const config = require('./config');
+
 
 /* ===========================
 ||  CONNECT TO MONGODB SERVER ||
@@ -69,12 +68,16 @@ app.use(function (req, res, next) {
     next();
 });
 app.use(methodOverriide("_method"));
+app.use(session({ secret: '비밀코드', resave: true, saveUninitialized: false })); // 세션 활성화
+app.use(passport.initialize()); // passport 구동
+app.use(passport.session()); // 세션 연결
+
 
 //라우팅
 app.use("/", require("./router/home"));
 app.use("/user", require("./router/user"));
 app.use("/posts", require("./router/post"));
-app.use("/auth", require("./router/auth"));   //인증관련 [jwt]
+app.use("/auth", require("./router/auth"));   //인증관련 [jwt] , //로그인 [passport]
 
 //404에러 발생시
 app.use( (req,res,next) => {
