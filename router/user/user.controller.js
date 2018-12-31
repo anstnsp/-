@@ -36,6 +36,8 @@ exports.signupUser = (req,res) => {
     });
 
 }
+
+
 //회원정보보는페이지
 exports.showUserInfo = (req,res) => {
     console.log("회원정보보기페이지 ")

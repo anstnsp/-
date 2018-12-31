@@ -6,7 +6,7 @@ router.get("/", controller.readUserList);
 //회원가입페이지로이동
 router.get("/new", controller.signupPage);
 //회원가입
-router.post("/", controller.signupUser);
+router.post("/", authController.verifyEmail, controller.signupUser);
 //회원정보보기
 router.get("/:username", controller.showUserInfo);
 //회원정보수정페이지

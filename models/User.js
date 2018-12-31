@@ -7,7 +7,8 @@ const userSchema = mongoose.Schema({
  username:{type:String, required:[true,"Username is required!"], unique:true},
  password:{type:String, required:[true,"Password is required!"] ,trim:true},
  name:{type:String, required:[true,"Name is required!"]},
- email:{type:String}
+ email:{type:String},
+    joinDate:{type:Date, default:Date.now()} //가입일자
 });
 
 /*

@@ -11,7 +11,7 @@ router.get("/loginPage", controller.loginPage);
 //authType: 'rerequest'는 매번 로그인 할 때마다 뒤의 public_profile과 email을 달라고 요청하는 거.
 //이것을 해둬야 실수로 사용자가 요청을 거절했을 때 다음 로그인 시 다시 얻어올 수 있다.
 //뒤에 scopo는 페이스북에 사용자에 대한 정보로 무엇을 요청할지 정하는 부분.
-router.get("/auth/facebook", controller.FaceBookIsAuthenticate);
+router.get("/auth/facebook",controller.isLoggendIn, controller.FaceBookIsAuthenticate);
 
 //auth/facebook/callback은 페이스북이 검증을 마치고 난 결과를 전송해주는 주소.
 

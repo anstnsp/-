@@ -70,7 +70,7 @@ app.use(function (req, res, next) {
 app.use(methodOverriide("_method"));
 app.use(session({ secret: '비밀코드', resave: true, saveUninitialized: false })); // 세션 활성화
 app.use(passport.initialize()); // passport 구동
-app.use(passport.session()); // 세션 연결
+app.use(passport.session()); // 로그인 세션 유지 
 
 
 //라우팅

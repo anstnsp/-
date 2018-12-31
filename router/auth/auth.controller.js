@@ -4,6 +4,7 @@ const uuid             = require("uuid");
 const passport         = require("passport");
 const LocalStrategy    = require("passport-local").Strategy;
 const FacebookStrategy = require("passport-facebook").Strategy;
+const nodeMailer       = require("nodemailer");
 
 /* ========================
 || passport-facebook 인증||
@@ -36,12 +37,19 @@ passport.use(new FacebookStrategy({
 /* ========================
 || passport-local 인증    ||
 ==========================*/
-exports.isAuthenticated = passport.authenticate("local",{failureRedirect: "/"});
+exports.isAuthenticated = passport.authenticate("local");
 
 passport.serializeUser((user ,done) => {  //Strategy 성공 시 호출
     done(null, user); //여기의 user가 deserializeUser의 첫 번째 매개변수로 이동
 });
-
+/*
+일단 인증이 되어 로그인이된 사용자는 매 reqeust마다 passport.deserializeUser메소드를 호출하게 되는데,
+앞에서 serializeUser에서 저장한 사용자 id를 이용해서  사용자정보를 db에서 조회하거나 하여
+done(null,user)로 리턴하면 HTTP request에 함꼐 리턴이 된다.
+해당 사용자가 로그인 되어 있는지를 확인하려면 req.isAuthenticatedd를 이용하여 로그인 되어있는지 확인할 수 있고
+페이지별로 로그인이 되어 있는지에 대해 접근제어를 하려면 함수를 하나 정의한 후에 router에 connect미들웨어로
+전처리로 호출하게 해서 인증여부를 확인하면 된다.
+ */
 passport.deserializeUser((user,done) => { //매개변수 user는 serializeUser의 done의 인자 user를 받은 것 .
     done(null, user); //여기의 user가 req.user가 됨
 });
@@ -71,8 +79,16 @@ exports.loginPage = (req,res) => {
     console.log("로긴페이지 들어옴 ");
     res.render("users/login");
 }
-
-
+/* ========================
+||      로그인 확인       ||
+==========================*/
+exports.isLoggendIn = (req,res,next) => {
+    if(req.isAuthenticated()) {  //로그인 되었다면 true
+        return next();
+    } else {
+        res.redirect("/login")  //비로그인 시 /login 으로
+    }
+}
 /* ========================
 || 로그인                 ||
 ==========================*/
@@ -124,7 +140,37 @@ exports.login = (req,res,next) => {
     }) //User.findOne
 
 };
+exports.verifyEmail = (req,res,next) => {
+    let email = req.body.email;
 
+    let transportor = nodeMailer.createTransport({ //메일발송객체 생성
+        service : "gmail",
+        auth    : {
+            user : process.env.GMAIL_ACCOUNT,         //gmail 계정 아이디
+            pass : process.env.GMAIL_PASSWORD         //gmail 계정 비밀번호
+        }
+    });
+
+    let mailOption = {
+        from    : "anstnsp1@gmail.com", //발송 메일 주소 (위에 작성한 gmail 아이디)
+        to      : email,                //수신 메일 주소
+        subject : "안녕하세요 문슈's 입니다. 이메일 인증을 해주세요.",  // 제목
+        html    : '<p>아래의 링크를 클릭해주세요 !</p>' +
+            "<a href='http://localhost:7777/auth/?email="+ email +"&token=abcdefg'>인증하기</a>"
+
+
+    };
+
+    transportor.sendMail(mailOption, (err,info) => {
+        if (err) {
+            console.log(err);
+        } else {
+            console.log("email send Success!!" + info.response);
+        }
+    });
+
+    //res.redirect("/");
+}
 
 encryptoHash = (password) => {
     let hash = crypto.createHash("sha256");
