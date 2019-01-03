@@ -7,7 +7,7 @@
   <% include ./partials/nav %>
   <div class="container home home-welcome">
    <div class="jumbotron">
-    <h1>여기는 니 멋대로 할 수 있는 장소다. ㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋ</h1>
+    <h1>.........................................</h1>
    </div>
 
 
@@ -19,18 +19,26 @@
           <div class="col-sm-12 col-lg-12 col-md12">
               <div class="col-sm-4 col-lg-4 col-md-4"></div>
               <div class="col-sm-4 col-lg-4 col-md-4">
-                  <h1 class="loginHI">ACS</h1>
+
                   <hr>
                   <div class="row">
-                      <a class="btn btn-block btn-lg btn-social btn-naver" href="auth/login/naver">
-                          <img class="fa" src="" alt="">네이버 계정으로 로그인
+                      <a class="btn btn-block btn-lg btn-social btn-naver" href="/auth/login/naver">
+                          <img class="fa" src="kakao_login.png" alt="">네이버 계정으로 로그인
                       </a>
-                      <a class="btn btn-block btn-lg btn-social btn-kakao" href="auth/login/kakao">
-                          <img class="fa" src="" alt="">카카오 계정으로 로그인
+                      <a class="btn btn-block btn-lg btn-social btn-kakao" href="/auth/login/kakao">
+                          <img class="fa" src="../image/kakao_login.png">
                       </a>
-                      <a class="btn btn-block btn-lg btn-social btn-facebook" href="auth/login/facebook">
+                      <a class="btn btn-block btn-lg btn-social btn-facebook" href="/auth/login/facebook">
                           <span class="fa fa-facebook"></span>페이스북 계정으로 로그인
                       </a>
+                      <!--data-use-continue-as="true"를 추가하여 {Name}님으로 계속을 활성화-->
+                      <a class ="btn btn-block btn-lg btn-social btn-facebook"href="">
+                          <div class="fb-login-button" data-max-rows="1" noddata-size="medium" data-button-type="login_with" data-show-faces="false" data-auto-logout-link="true" data-use-continue-as="true"></div>
+                      </a>
+
+
+
+                  </div>
                   </div>
               </div>
               <div class="col-sm-4 col-lg-4 col-md-4"></div>
@@ -40,6 +48,24 @@
  </body>
 </html>
 <script>
+    // // 페북 sdk
+    // window.fbAsyncInit = function() {
+    //     FB.init({
+    //         appId      : '534326950396810', //내 앱id
+    //         cookie     : true,
+    //         xfbml      : true,
+    //         version    : 'v3.2' //타게팅 api버전
+    //     });
+    //
+    //     FB.AppEvents.logPageView();
+    //
+    // };
+    //
+    //
+    // FB.getLoginStatus(function(response) {
+    //     statusChangeCallback(response);
+    // });
+
     let newName, n =0;
     $(".openHyperExplorer").click(() => {
         console.log("렛저렛저");
@@ -47,8 +73,10 @@
         popupOpen(url);
     });
 
+
     $(".openNutax").click((event) => {
         console.log("누탁스열기 클릭했네?");
+
         let url = "https://210.180.65.158:9440/console/#login";
         popupOpen(url);
     });
@@ -65,6 +93,8 @@
 
     }
    //팝업호출함수
+
+
     function popupOpen(openurl){
         newWindow("test")
         let url        = openurl;    //팝업창에 출력될 페이지 URL

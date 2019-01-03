@@ -4,11 +4,16 @@ const mongoose = require("mongoose");
 
 // schema // 1
 const userSchema = mongoose.Schema({
- username:{type:String, required:[true,"Username is required!"], unique:true},
- password:{type:String, required:[true,"Password is required!"] ,trim:true},
- name:{type:String, required:[true,"Name is required!"]},
- email:{type:String},
-    joinDate:{type:Date, default:Date.now()} //가입일자
+    username:{type:String, required:[true,"Username is required!"], unique:true},   //사람이름
+    password:{type:String, trim:true},//required:[true,"Password is required!"] ,
+    name:{type:String, required:[true,"Name is required!"]},                        //아이디
+    email:{type:String},
+    joinDate:{type:Date, default:Date.now()}, //가입일자
+    accessToken : {type:String},//로컬토큰
+    FBToken : {type:String},    //페북토큰
+    KAKAOToken : {type:String}, //카카오토큰
+    NAVERToken : {type:String},  //네이버토큰
+    Provier : {type:String}    //정보제공자
 });
 
 /*

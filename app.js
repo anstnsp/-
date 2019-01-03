@@ -31,7 +31,7 @@ const passport = require("passport");
 
 
 /* ===========================
-||  CONNECT TO MONGODB SERVER ||
+|| CONNECT TO MONGODB SERVER ||
 =============================*/
 console.log(process.env.MONGODB_URL);
 mongoose.Promise = global.Promise;
@@ -47,7 +47,7 @@ db.on("error", (err)=>{
 
 
 //static폴더 지정
-app.use(express.static(__dirname + "/publiic"));
+app.use(express.static(__dirname + "/public"));
 
 // view engine setup
 //app.set()을 이용해서 express의 세팅을 할 수 있다.
@@ -70,7 +70,7 @@ app.use(function (req, res, next) {
 app.use(methodOverriide("_method"));
 app.use(session({ secret: '비밀코드', resave: true, saveUninitialized: false })); // 세션 활성화
 app.use(passport.initialize()); // passport 구동
-app.use(passport.session()); // 로그인 세션 유지 
+app.use(passport.session()); // 로그인 세션 유지
 
 
 //라우팅

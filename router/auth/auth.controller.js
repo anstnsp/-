@@ -5,26 +5,78 @@ const passport         = require("passport");
 const LocalStrategy    = require("passport-local").Strategy;
 const FacebookStrategy = require("passport-facebook").Strategy;
 const nodeMailer       = require("nodemailer");
+const KakaoStrategy    = require("passport-kakao").Strategy;
+/* ========================
+|| passport-kakao 인증   ||
+==========================*/
+exports.KAKAOIsAuthenticate = passport.authenticate("kakao");
+
+exports.CallbackKAKAO = passport.authenticate("kakao",{
+    successRedirect : "/auth/login_success",
+    failureRedirect : "/auth/login_fail"
+});
+
+passport.use(new KakaoStrategy({
+
+    clientID: process.env.KAKAO_CLIENT_ID,
+    clientSecret: "", //clientSecret을 사용하지 않는다면 넘기지 말거나 빈스트링
+    callbackURL: process.env.KAKAO_CALLBACK_URL
+
+},
+    (accessToken,refreshToken, profile, done) => {
+    //사용자의 정보는 profile 안에 있다.
+        console.log("카카오 프로필:"+JSON.stringify(profile));
+        User.findOne({"username":profile.id}, (err,user) =>{
+            if(err) return done(err);
+            if(!user) {
+                user = new User({
+                    username : profile.username,
+                    name     : profile.id,
+                    email    : profile.accout_email
+
+                });
+
+                user.save((err) =>{
+                    if(err) console.log(err);
+                    return done(err,user);
+                });
+            } else {
+                let tmp = accessToken;
+                let tmp2 = new Date.now();
+                User.findByIdAndUpdate(user._usernameField, { $set: { KAKAOToken:tmp}}, (err, user) =>{
+                    if(err) return done(err);
+                    done(null,user);
+                });
+
+            }
+        });
+    }
+    ));
 
 /* ========================
 || passport-facebook 인증||
 ==========================*/
 exports.FaceBookIsAuthenticate = passport.authenticate("facebook", {authType: "rerequest", scope: ["public_profile", "email"]});
-exports.CallbackFaceBook = passport.authenticate("facebook", {failureRedirect: "/"});
+exports.CallbackFaceBook = passport.authenticate("facebook", {successRedirect: "/auth/login_success", failureRedirect: "/auth/login_fail"});
 
 passport.use(new FacebookStrategy({
-    clientID : "534326950396810", //페북 클라이언트 아이디
-    clientSecret: "ef32427a360a967a4d3d6bad98c6738a", //페북 클라이언트 시크릿
-    callbackURL: "http://localhost:7777/auth/facebook/callback" , //홈페이지주소/auth/facebook/callback
-    passReqToCallback: true, //true면 뒤의 콜백함수에 req매개변수를 추가해줌.
+    clientID : process.env.FACEBOOK_CLIENT_ID, //페북 클라이언트 아이디
+    clientSecret: process.env.FACEBOOK_CLIENT_SECRET, //페북 클라이언트 시크릿
+    callbackURL: process.env.FACEBOOK_CALLBACK_URL , //홈페이지주소/auth/facebook/callback
+    passReqToCallback: true //true면 뒤의 콜백함수에 req매개변수를 추가해줌.
 }, (req, accessToken, refreshToken, profile, done) => {
+    console.log(JSON.stringify(profile));
     //profile.id로 이미 우리 사이트의 회원인가를 조회.
     User.findOne({ id: profile.id}, (err, user) => {
       if(user) { //회원 정보가 있으면 로그인
+          console.log("페북회원가입시 회원정보가 있을 때 회원정보:"+user);
           return done(err, user);
       }
         const newUser = new User({ //없으면 회원생성
-            id: profile.id
+                        profile.displayname  // 회원이름
+            profile.provider //소셜제공자
+            username : profile.displayname
+
         });
 
       newUser.save((user) => {
@@ -39,17 +91,20 @@ passport.use(new FacebookStrategy({
 ==========================*/
 exports.isAuthenticated = passport.authenticate("local");
 
+//인증 후 사용자 정보를 세션에 저장
 passport.serializeUser((user ,done) => {  //Strategy 성공 시 호출
     done(null, user); //여기의 user가 deserializeUser의 첫 번째 매개변수로 이동
 });
 /*
-일단 인증이 되어 로그인이된 사용자는 매 reqeust마다 passport.deserializeUser메소드를 호출하게 되는데,
+일단 인증이 되어 로그인이 된 사용자는 매 reqeust마다 passport.deserializeUser메소드를 호출하게 되는데,
 앞에서 serializeUser에서 저장한 사용자 id를 이용해서  사용자정보를 db에서 조회하거나 하여
 done(null,user)로 리턴하면 HTTP request에 함꼐 리턴이 된다.
 해당 사용자가 로그인 되어 있는지를 확인하려면 req.isAuthenticatedd를 이용하여 로그인 되어있는지 확인할 수 있고
 페이지별로 로그인이 되어 있는지에 대해 접근제어를 하려면 함수를 하나 정의한 후에 router에 connect미들웨어로
 전처리로 호출하게 해서 인증여부를 확인하면 된다.
  */
+//인증 후, 사용자 정보를 세션에서 읽어서 request.user에 저장
+//매번 각 페이지 접근시 마다 , 세션에 저장된 사용자 정보를 읽어서 HTTP request객체에 user라는 객체를 추가로 넣어서 리턴한다.
 passport.deserializeUser((user,done) => { //매개변수 user는 serializeUser의 done의 인자 user를 받은 것 .
     done(null, user); //여기의 user가 req.user가 됨
 });
@@ -82,32 +137,38 @@ exports.loginPage = (req,res) => {
 /* ========================
 ||      로그인 확인       ||
 ==========================*/
-exports.isLoggendIn = (req,res,next) => {
-    if(req.isAuthenticated()) {  //로그인 되었다면 true
+exports.isLoggdIn = (req,res,next) => {
+    if(req.isAuthenticated()) {  //로그인 되었다면 true로 다음 파이프라인으로 진행
         return next();
     } else {
-        res.redirect("/login")  //비로그인 시 /login 으로
+        res.redirect("/users/login")  //비로그인 시 /login 으로
     }
 }
 /* ========================
-|| 로그인                 ||
+||       jwt 발급         ||
 ==========================*/
 exports.login = (req,res,next) => {
-    console.log("토큰발금 처음부분")
-    //1.유저의 로그인 아디와 패스워드 받음 .
+
     const username = req.body.username;
     const password = req.body.password;
+    /* 주석처리 된 부분은 passport-local 부분에서
+       인증처리 하므로 제거 하였슴.
+           //1.유저의 로그인 아디와 패스워드 받음 .
+            const username = req.body.username;
+            const password = req.body.password;
 
-    //2.유저아이디가 디비에 있는지 확인.
-    User.findOne({username: req.body.username}, (err, user) => {
-        if (err) {
-            console.log("해당 아이디는 존재하지 않습니다.");
-            return res.json(err);
-        } else {
-            console.log("아이디 존재");
-            //3.유저아이디가 있다면 해당 아이디에 대한 비밀번호가 맞는지 확인.
-            if (user.password === encryptoHash(req.body.password)) {
-                //4.유저아이디가 확인되고 비밀번호가 일치한다면 토큰 발급.
+            //2.유저아이디가 디비에 있는지 확인.
+            User.findOne({username: req.body.username}, (err, user) => {
+                if (err) {
+                    console.log("해당 아이디는 존재하지 않습니다.");
+                    return res.json(err);
+                } else {
+                    console.log("아이디 존재");
+                    //3.유저아이디가 있다면 해당 아이디에 대한 비밀번호가 맞는지 확인.
+                    if (user.password === encryptoHash(req.body.password)) {
+                        //4.유저아이디가 확인되고 비밀번호가 일치한다면 토큰 발급.
+     */
+
                 const jwtData = {
                     exp: Math.floor(Date.now() / 1000) + (60 * 3), // 3분
                     data: {username, password},
@@ -123,23 +184,16 @@ exports.login = (req,res,next) => {
                     } else {
                         console.log("토큰발급 성공!" + token);
                         console.log("로그인 성공!! 앞으로는 토큰으로 로그인 인증")
-                        return res.json({message : "토큰발급성공",token,username,password});
+                        return res.json({message : "토큰발급성공",token});
 
-                       // res.redirect("/");
                     } //else
-
                 });
-
-            } else {
-                console.log("비밀번호가 틀림");
-                return res.json("비밀번호가 틀립니다.");
-            } //else
-
-        } //else
-
-    }) //User.findOne
-
 };
+
+
+/* ========================
+||       이메일검증       ||
+==========================*/
 exports.verifyEmail = (req,res,next) => {
     let email = req.body.email;
 
@@ -171,7 +225,22 @@ exports.verifyEmail = (req,res,next) => {
 
     //res.redirect("/");
 }
+/* ========================
+||      토큰검증         ||
+==========================*/
+exports.validtionToken = (req, res, next) => {
+    const token = req.headers["accesstoken"];
+    if (typeof token !== "undefined") {
+        req.accessToken = token;
+    } else {
+        req.accessToken = "";
+    }
+    next();
+};
 
+/* ========================
+||      hash암호화        ||
+==========================*/
 encryptoHash = (password) => {
     let hash = crypto.createHash("sha256");
     hash.update(password);

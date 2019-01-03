@@ -29,10 +29,23 @@ exports.signupUser = (req,res) => {
     user.email    = req.body.email;
     user.password = hash_password;
 
-    user.save((err,users) => {
-        if(err) return res.json(err);
-        console.log("회원가입한 유저의 정보:"+JSON.stringify(users));
-        res.redirect("/user");
+    user.findOne({username:req.body.name}, (err,user) => {
+        if(err) {       //서버에러
+            return res.json({
+                type:false,
+                data: err });
+        } else if (user) { //name이 이미 존재할 때
+            return res.json({
+                type:false,
+                data: "해당 name은 이미 존재합니다"
+            });
+        } else if(!user) {  //서버에러 없고 name없을 때 회원가입 처리
+            user.save((err,users) => {
+                if(err) return res.json(err);
+                console.log("회원가입한 유저의 정보:"+JSON.stringify(users));
+                res.redirect("/user");
+            });
+        }
     });
 
 }

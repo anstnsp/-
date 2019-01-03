@@ -2,6 +2,32 @@
 ####Promise 예제####
 
  */
+const promise = new Promise((resolce , reject) => {
+    try {
+        //..비동기작업
+        resolve(successResult);
+    } catch(err) {
+        reject(err);
+    }
+});
+
+promise.then((result) => {
+    //result처리
+}).catch((err) => {
+    console.log(err); //에러처리
+})
+
+User.findOne({}).then((user) => {
+    user.name = 'zero';
+    return user.save().catch( (err) => console.log("save에서 에러"));
+}).then((user) => {
+    return Users.findOne({gender : 'm'}).catch((err) => console.log("gender로찾기에서 에러"));
+}).then((user) => {
+
+}).catch(err => {
+    console.error("최종에러",err);
+});
+
 function promiseTest(rul) {
     return new Promise(function (resolve, reject){
         var xhr = new XMLHttpRequest;
