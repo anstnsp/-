@@ -9,7 +9,7 @@ object를 넣는 경우 {createdAt:1}(오름차순), {createdAt:-1}(내림차순
 //게시물리스트 불러오기
 exports.readPostList =  (req,res) => {
     Post.find({})
-        .sort("-createdAt")
+        .sort("date:-1")  //날짜순으로 데이터 가져옴
         .exec((err, posts) =>{
             if(err) return res.json(err);
             res.render("posts/index", {posts:posts});
@@ -33,7 +33,15 @@ exports.writePost = (req,res) => {
 //해당게시물보기
 exports.readPostInfo = (req,res) => {
     Post.findOne({_id:req.params.id}, (err, post) => {
+
         if(err) return res.json(err);
+        //조회수 1 늘리기
+        post.count +=1;
+        //조회수 1늘린거를 디비에 저장
+        post.save((err) => {
+            if(err) throw err;
+        });
+
         res.render("posts/show", {post:post});
     })
 }
@@ -62,4 +70,43 @@ exports.deletePost = (req,res) => {
         if(err) return res.json(err);
         res.redirect("/posts");
     });
+}
+
+exports.searchPost = (req,res) => {
+    let searchType = req.param("searchType");
+    let search_word = req.param("searchWord");
+    let searchCondition = {$regex:search_word};
+
+    console.log("searchType:"+searchType);
+    console.log("searchCondition:"+searchCondition);
+    console.log("search_word:"+search_word)
+
+    if(searchType === "title_contents") {
+
+        Post.find({$or:[{title:searchCondition}, {contents: searchCondition}]})
+            .sort({date:-1}).exec((err, posts) => {
+            if(err) throw err;
+
+            console.log("검색조건으로 찾은 내용:"+JSON.stringify(posts));
+            res.render("posts", {posts:posts});
+        })
+    } else if(searchType === "title") {
+        Post.find({title:search_word}, (err,posts) => {
+            if(err) throw err;
+
+            console.log("검색조건으로 찾은 내용:"+JSON.stringify(posts));
+            res.render("posts", {posts:posts});
+        })
+    } else if(searchType === "contents") {
+        Post.find({contents:search_word}, (err,posts) => {
+            if(err) throw err;
+
+            console.log("검색조건으로 찾은 내용:"+JSON.stringify(posts));
+            res.render("posts", {posts:posts});
+        })
+    } else if(searchType === "wrtier") {
+
+    }
+
+
 }

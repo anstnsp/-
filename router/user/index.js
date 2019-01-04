@@ -15,5 +15,6 @@ router.get("/:username/edit", controller.editPage);
 //router.put("/:username", controller.editUser);
 
 
-
 module.exports = router;
+
+//인증하기 누르면 토큰과 이메일 검증하고 next로 signup 호출해야함.

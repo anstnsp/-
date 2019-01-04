@@ -6,9 +6,9 @@ const mongoose = require("mongoose");
 const userSchema = mongoose.Schema({
     username:{type:String, required:[true,"Username is required!"], unique:true},   //사람이름
     password:{type:String, trim:true},//required:[true,"Password is required!"] ,
-    name:{type:String, required:[true,"Name is required!"]},                        //아이디
+    name:{type:String},                        //아이디
     email:{type:String},
-    joinDate:{type:Date, default:Date.now()}, //가입일자
+    joinDate:{type:Date}, //가입일자
     accessToken : {type:String},//로컬토큰
     FBToken : {type:String},    //페북토큰
     KAKAOToken : {type:String}, //카카오토큰

@@ -26,14 +26,15 @@ passport.use(new KakaoStrategy({
     (accessToken,refreshToken, profile, done) => {
     //사용자의 정보는 profile 안에 있다.
         console.log("카카오 프로필:"+JSON.stringify(profile));
-        User.findOne({"username":profile.id}, (err,user) =>{
+        User.findOne({username:profile.displayName}, (err,user) =>{
             if(err) return done(err);
             if(!user) {
                 user = new User({
-                    username : profile.username,
+                    username : profile.displayName,
                     name     : profile.id,
-                    email    : profile.accout_email
-
+                    email    : profile._json.kaccount_email,
+                    Provider : profile.provider,
+                    KAKAOToken: accessToken
                 });
 
                 user.save((err) =>{
@@ -67,15 +68,16 @@ passport.use(new FacebookStrategy({
 }, (req, accessToken, refreshToken, profile, done) => {
     console.log(JSON.stringify(profile));
     //profile.id로 이미 우리 사이트의 회원인가를 조회.
-    User.findOne({ id: profile.id}, (err, user) => {
+    User.findOne({ username: profile.displayName}, (err, user) => {
       if(user) { //회원 정보가 있으면 로그인
           console.log("페북회원가입시 회원정보가 있을 때 회원정보:"+user);
           return done(err, user);
       }
         const newUser = new User({ //없으면 회원생성
-                        profile.displayname  // 회원이름
-            profile.provider //소셜제공자
-            username : profile.displayname
+            username : profile.displayName,  // 회원이름
+            Provider : profile.provider, //소셜제공자
+            //email    : profile.email,
+            FBToken  : accessToken
 
         });
 
@@ -139,8 +141,10 @@ exports.loginPage = (req,res) => {
 ==========================*/
 exports.isLoggdIn = (req,res,next) => {
     if(req.isAuthenticated()) {  //로그인 되었다면 true로 다음 파이프라인으로 진행
+        console.log("로그인 되어있다")
         return next();
     } else {
+        console.log("로그인 안되어 있다.")
         res.redirect("/users/login")  //비로그인 시 /login 으로
     }
 }
@@ -223,7 +227,15 @@ exports.verifyEmail = (req,res,next) => {
         }
     });
 
-    //res.redirect("/");
+}
+exports.confirmEmail = (req,res,next) => {
+    let email2 = req.query.email;
+    let token = req.query.token;
+    console.log(req.email)
+    console.log(req.token)
+    console.log(email2);
+    console.log(token)
+    if(req.email === email2 && req.token === token) next();
 }
 /* ========================
 ||      토큰검증         ||

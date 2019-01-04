@@ -2,6 +2,13 @@
 ####Promise 예제####
 
  */
+User.statics.create = (username,password) => {
+    const user = new this({
+        username,
+        password
+    })
+    return user.save()
+}
 const promise = new Promise((resolce , reject) => {
     try {
         //..비동기작업

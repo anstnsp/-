@@ -40,7 +40,7 @@ exports.signupUser = (req,res) => {
                 data: "해당 name은 이미 존재합니다"
             });
         } else if(!user) {  //서버에러 없고 name없을 때 회원가입 처리
-            user.save((err,users) => {
+            user.create((err,users) => {
                 if(err) return res.json(err);
                 console.log("회원가입한 유저의 정보:"+JSON.stringify(users));
                 res.redirect("/user");

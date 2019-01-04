@@ -1,7 +1,7 @@
 const router = require("express").Router();
 const controller = require("./post.constroller");
 
-
+router.get("/search", controller.searchPost);
 //게시물리스트
 router.get("/", controller.readPostList);
 //게시물작성페이지

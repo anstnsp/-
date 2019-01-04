@@ -1,12 +1,13 @@
 const router = require('express').Router();
 const controller = require('./auth.controller');
 
+
 /*================
 || 로그인 성공 시||
 ==================*/
 router.get("/login_success",controller.isLoggdIn, (req,res) => {
     res.send(req.user);
-})
+});
 
 /*================
 ||페이스북 로그인||
@@ -18,6 +19,7 @@ router.get("/login/facebook", controller.FaceBookIsAuthenticate);
 router.get("/facebook/callback", controller.CallbackFaceBook, (req,res) => {
     res.redirect("/");
 });
+
 /*================
 ||카카오톡 로그인||
 ==================*/
