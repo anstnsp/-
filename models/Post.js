@@ -4,6 +4,7 @@ const mongoose = require("mongoose");
 
 // schema
 const postSchema = mongoose.Schema({
+ 
     writer: String,
     password: String,
     title: String,

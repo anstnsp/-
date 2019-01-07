@@ -46,7 +46,11 @@
      <% }) %>
     </tbody>
    </table>
-
+  
+      <% for(var i=1; i<=maxPage; i++) { %> 
+        <a href="/posts?page=<%=i%>" class="next-page"><%=i%></a>
+      <% } %>
+   
    <div class="search">
     <form action="/posts/search" method="get" id="searchAction" name="searchAction">
      <select name="searchType" id="searchType">

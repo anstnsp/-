@@ -8,12 +8,14 @@ object를 넣는 경우 {createdAt:1}(오름차순), {createdAt:-1}(내림차순
 */
 //게시물리스트 불러오기
 exports.readPostList =  (req,res) => {
-    Post.find({})
-        .sort("date:-1")  //날짜순으로 데이터 가져옴
-        .exec((err, posts) =>{
-            if(err) return res.json(err);
-            res.render("posts/index", {posts:posts});
-        });
+
+    // 처음 index로 접속 했을시 나오는 부분
+    // db에서 게시글 리스트 가져와서 출력
+    // page는 1-5까지 보여줌 -> db에서 총 갯수 잡아와서 10으로 나눠서 올림해야함
+    // 한페이지에 10개의 게시글: limit: 10, skip: (page-1)*10 이면 될 듯
+    // page number는 param으로 받아오기 가장 처음엔 param 없으니까 그땐 자동 1로 설정
+    Pagination(req,res,5,{});
+   
 };
 
 //게시물작성페이지로 이동
@@ -82,31 +84,31 @@ exports.searchPost = (req,res) => {
     console.log("search_word:"+search_word)
 
     if(searchType === "title_contents") {
-
-        Post.find({$or:[{title:searchCondition}, {contents: searchCondition}]})
-            .sort({date:-1}).exec((err, posts) => {
-            if(err) throw err;
-
-            console.log("검색조건으로 찾은 내용:"+JSON.stringify(posts));
-            res.render("posts", {posts:posts});
-        })
+        Pagination(req,res,5,{$or:[{title:searchCondition}, {contents: searchCondition}]});
     } else if(searchType === "title") {
-        Post.find({title:search_word}, (err,posts) => {
-            if(err) throw err;
-
-            console.log("검색조건으로 찾은 내용:"+JSON.stringify(posts));
-            res.render("posts", {posts:posts});
-        })
+        Pagination(req,res,5,{title:search_word});
     } else if(searchType === "contents") {
-        Post.find({contents:search_word}, (err,posts) => {
-            if(err) throw err;
-
-            console.log("검색조건으로 찾은 내용:"+JSON.stringify(posts));
-            res.render("posts", {posts:posts});
-        })
+        Pagination(req,res,5,{contents:search_word});
     } else if(searchType === "wrtier") {
 
     }
 
 
+}
+
+//pagination(req,res,한페이지에 보여줄 게시물갯수, 몽고디비검색조건)
+Pagination = (req,res,limitPage,queryCondition) => {
+    let page = Math.max(1,req.query.page);
+    let limit = limitPage; //한 페이지에 보여줄 게시물 갯수
+    Post.count(queryCondition, (err,count) => { //개시물의 총 갯수 count
+        if(err) return res.json({message:err});
+        let skipSize = (page-1)*limit; // 3번째 페이지를 클릭하면 limit*2개 건너뜀
+        let maxPage = Math.ceil(count/limit); 
+                 
+        Post.find(queryCondition).sort("date:1").skip(skipSize).limit(limit).exec((err,posts) => {
+        if(err) return res.json({message:err});
+        console.log("검색조건으로 찾은 내용:"+JSON.stringify(posts));
+        res.render("posts", {posts:posts, page:page, maxPage:maxPage});
+    })
+    })
 }
