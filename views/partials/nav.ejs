@@ -18,9 +18,7 @@
           </ul>
           <ul class="nav navbar-nav navbar-right"> <!-- 1 -->
                 <li><a href="/user">회원리스트</a></li>
-                <li><a href="/user/new">회원가입</a></li>
-                <li><a href="" class="login">로그인</a></li>
-              
+                <li><a href="/user/new">회원가입</a></li>        
           </ul>
 
         </div>
@@ -28,27 +26,6 @@
 </nav>
 
 <script>
-
-    $('.login').click(function(event){  //버튼을 클릭 했을시 popupOpen 함수 출력
-        console.log('click');
-        popupOpen2();
-    });
-    //팝업호출함수
-    function popupOpen2(){
-        let url= "http://localhost:7777/auth/loginPage";    //팝업창에 출력될 페이지 URL
-        let winWidth = 300;
-        let winHeight = 400;
-        let top = 210;   //top,left 현재 노트북 기준 정중앙에 맞춤.
-        let left = 600;
-        let location = "no" //주소표시줄 표시여부
-        let scrollbars = "no" // 스크롤바 표시 여부 (내용이 창보다 클 경우)
-
-        let popupOption= "width="+winWidth+", height="+winHeight+", top="+top+", left="+left+", location="+location ;    //팝업창 옵션(optoin)
-        let myWindow = window.open(url,"TestName",popupOption);
-        //myWindow.document.write("<h1>"+myWindow.name+"</h1>");
-
-        return myWindow;
-    }
 
 
 </script>

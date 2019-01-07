@@ -194,8 +194,8 @@ exports.login = (req,res,next) => {
                     } else {
                         console.log("토큰발급 성공!" + token);
                         console.log("로그인 성공!! 앞으로는 토큰으로 로그인 인증")
-                        return res.json({message : "토큰발급성공",token});
-
+                        return res.redirect("/auth/login_success");
+                       
                     } //else
                 });
 };
