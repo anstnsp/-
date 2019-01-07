@@ -25,7 +25,20 @@ exports.writePostPage = (req,res) => {
 
 //게시물작성
 exports.writePost = (req,res) => {
-    Post.create(req.body, (err, post) => {
+    let post = new Post();
+    
+    post.count = 0;
+    post.title = req.body.title;
+    post.cotents = req.body.contents;
+    post.writer = req.user.username;
+
+    // user.create((err,users) => {
+    //     if(err) return res.json(err);
+    //     console.log("회원가입한 유저의 정보:"+JSON.stringify(users));
+    //     res.redirect("/user");
+    // });
+
+    post.save((err, post) => {
         if(err) return res.json(err);
         console.log("게시물 작성 입력 값:"+ JSON.stringify(post));
         res.redirect("/posts");

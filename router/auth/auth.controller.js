@@ -42,14 +42,9 @@ passport.use(new KakaoStrategy({
                     return done(err,user);
                 });
             } else {
-                let tmp = accessToken;
-                let tmp2 = new Date.now();
-                User.findByIdAndUpdate(user._usernameField, { $set: { KAKAOToken:tmp}}, (err, user) =>{
-                    if(err) return done(err);
-                    done(null,user);
-                });
-
-            }
+                console.log("페북회원가입시 회원정보가 있을 때 회원정보:"+user);
+                return done(err, user);
+            } 
         });
     }
     ));
@@ -58,7 +53,10 @@ passport.use(new KakaoStrategy({
 || passport-facebook 인증||
 ==========================*/
 exports.FaceBookIsAuthenticate = passport.authenticate("facebook", {authType: "rerequest", scope: ["public_profile", "email"]});
-exports.CallbackFaceBook = passport.authenticate("facebook", {successRedirect: "/auth/login_success", failureRedirect: "/auth/login_fail"});
+exports.CallbackFaceBook = passport.authenticate("facebook", {
+    successRedirect: "/auth/login_success", 
+    failureRedirect: "/auth/login_fail"
+});
 
 passport.use(new FacebookStrategy({
     clientID : process.env.FACEBOOK_CLIENT_ID, //페북 클라이언트 아이디

@@ -29,7 +29,7 @@ router.get("/facebook/callback", controller.CallbackFaceBook, (req,res) => {
 ||카카오톡 로그인||
 ==================*/
 router.get("/login/kakao", controller.KAKAOIsAuthenticate);
-router.get("/kakao/callback", controller.CallbackKAKAO);
+router.get("/kakao/callback", controller.CallbackKAKAO );
 
 
 
