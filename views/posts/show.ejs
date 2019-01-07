@@ -7,7 +7,11 @@
  </head>
  <body>
   <% include ../partials/nav %>
-
+<style>
+    #commentHead {
+        color : red;
+    }
+</style>
   <div class="container post post-show">
    <h2>게시판</h2>
 
@@ -31,11 +35,102 @@
       </div> <!-- post-info end -->
      </div> <!-- col end-->
      <div class="col-sm-8 col-sm-pull-4">
-      <div class="post-body"><%= post.contents %></div>
+      <div class="post-body"><%= post.contents %></div> 
      </div> <!-- col end-->
     </div> <!-- row end -->
    </div> <!-- post-container end -->
+   <h3 id="commentHead">*댓글*</h3>
+   <div class="reply">
+        <div class="reply_list">
+            <%if(post.comments.length>0){%>
+            <%var commentsList = post.comments;%>
+            <%for(var i=0; i<commentsList.length; i++){%>
+            <% if (i < 5 ) { %>
+            <div class="reply_content">
+                <div class="reply_info">작성자 : <%=commentsList[i].name%> /     작성일 : <%=dateFormatChange(commentsList[i].date)%></div>
+                <div class="reply_text"><%=commentsList[i].memo%></div>
+
+                
+            </div>
+            <hr>
+            <%}%>
+            <%}%>
+            <%} else {%>
+            <div class="reply_content">
+                <div class="reply_info">댓글이 없습니다</div>
+            </div>
+            <%}%>
+       </div>
+    
+         
+    <!-- 댓글 페이징 -->
+    <div class="pagination pagination-centered">
+        <ul class="pagination">
+            <li class="page-item">
+                <a class="page-link" href="#" aria-label="Previous">
+                    <span aria-hidden="true">&laquo;</span>
+                </a>
+            </li>
+            
+            <%
+            for(var i=1; i<=replyPage; i++){
+            %>
+            <li class="page-item"><a href="#" onclick="changePage(<%=i%>);"><%=i%></a></li>
+            <%}%>
+
+            <li class="page-item">
+                <a class="page-link" href="#" aria-label="Next">
+                    <span aria-hidden="true">&raquo;</span>
+                </a>
+            </li>
+        </ul>
+    </div>
+    <!-- 댓글 페이징 끝-->
+
+
+   <form id="replyAction" action="/posts/reply" method="post">
+    <div class="reply_writer">
+        <input type="text" class="replyWriter" id="replyWriter" name="replyWriter" placeholder="댓글작성자">
+    </div>
+    <div class="reply_comment">
+        <textarea class="replyComment" id="replyComment" name="replyComment" rows="3" cols="30"></textarea>
+    </div>
+    <input type="hidden" name="replyId" id="replyId" value="<%=post._id%>">
+    <button type="submit">댓글 작성</button>
+    </form>
 
   </div> <!-- container end -->
  </body>
 </html>
+<script>
+function changePage(page) {
+    
+           $.get('/posts/reply?id=<%=post._id%>&page='+page+"&max=<%=post.comments.length%>", function(replyList) {
+               var output = '';
+        
+               for(var i=0;i<replyList.length;i++) {
+                   
+                   output += '<div class="reply_content"><div class="reply_info"> 작성자 : '+replyList[i].name+' / '+ (replyList[i].date)+'</div>';
+                  
+                   output += '<div class="reply_text">'+replyList[i].memo.replace(/\\r\\n/gi, " ")+'</div></div><hr>';
+                  
+               }
+              
+               $(".reply_list").html(output);
+               
+           });
+          
+       }
+
+
+</script>
+
+<%
+function dateFormatChange(date) {
+    var options = {
+        weekday: "short", year: "numeric", month: "short",
+        day: "numeric", hour: "2-digit", minute: "2-digit"
+    };
+    return date.toLocaleTimeString("ko-KR", options);
+}
+%>

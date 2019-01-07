@@ -1,6 +1,8 @@
 const router = require("express").Router();
 const controller = require("./post.constroller");
 
+router.get("/reply", controller.readComments)
+//게시물검색 
 router.get("/search", controller.searchPost);
 //게시물리스트
 router.get("/", controller.readPostList);
@@ -16,7 +18,8 @@ router.get("/:id/edit", controller.goEditPage);
 router.put("/:id", controller.editPost);
 //해당게시물 삭제하기
 router.delete("/:id", controller.deletePost);
-
+//게시물에 댓글달기 
+router.post("/reply", controller.addComment)
 
 
 

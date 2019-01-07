@@ -68,6 +68,7 @@ app.use(function (req, res, next) {
     next();
 });
 app.use(methodOverriide("_method"));
+//resave 세션아이디를 접속할때마다 발급.(true)
 app.use(session({ secret: '비밀코드', resave: true, saveUninitialized: false })); // 세션 활성화
 app.use(passport.initialize()); // passport 구동
 app.use(passport.session()); // 로그인 세션 유지

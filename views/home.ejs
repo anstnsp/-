@@ -14,31 +14,33 @@
       <button class="optionModifyBtn">네이버 팝업</button>
       <button class="openNutax">누탁스열기</button>
       <button class="openHyperExplorer">익스플로러열기</button>
-
+ 
+      
       <div class="row">
           <div class="col-sm-12 col-lg-12 col-md12">
               <div class="col-sm-4 col-lg-4 col-md-4"></div>
               <div class="col-sm-4 col-lg-4 col-md-4">
-
+                <% if(user) { %>
+                <%=user.username%>님 로그인중... <button class="btn btn-danger" id="logout">ajax로그아웃</button>
+                <a href="/auth/logout"><button class="btn btn-danger">url로그아웃</button></a>
+                <% } else {%>
+                    로그인 하세요!!
+                    <div class="row">
+                        <a class="btn btn-block btn-lg btn-social btn-naver" href="/auth/login/naver">
+                            <img class="fa"  width="200" src="kakao_login.png" alt="">네이버 계정으로 로그인
+                        </a>
+                        <a class="btn btn-block btn-lg btn-social btn-kakao" href="/auth/login/kakao">
+                            <img class="fa" width="200" height="50" src="../image/kakao_login.png">
+                        </a>
+                        <a class="btn btn-block btn-lg btn-social btn-facebook" href="/auth/login/facebook">
+                          <img class="fa" width="200" height="50" src="../image/facebook_login.png">
+                        </a>
+                        <!--data-use-continue-as="true"를 추가하여 {Name}님으로 계속을 활성화-->
+                        <div class="fb-login-button" data-max-rows="1" data-size="large" data-button-type="login_with" data-show-faces="false" data-auto-logout-link="false" data-use-continue-as="true"></div>
+                    </div> 
+                <% } %>
                   <hr>
-                  <div class="row">
-                      <a class="btn btn-block btn-lg btn-social btn-naver" href="/auth/login/naver">
-                          <img class="fa" src="kakao_login.png" alt="">네이버 계정으로 로그인
-                      </a>
-                      <a class="btn btn-block btn-lg btn-social btn-kakao" href="/auth/login/kakao">
-                          <img class="fa" src="../image/kakao_login.png">
-                      </a>
-                      <a class="btn btn-block btn-lg btn-social btn-facebook" href="/auth/login/facebook">
-                          <span class="fa fa-facebook"></span>페이스북 계정으로 로그인
-                      </a>
-                      <!--data-use-continue-as="true"를 추가하여 {Name}님으로 계속을 활성화-->
-                      <a class ="btn btn-block btn-lg btn-social btn-facebook"href="">
-                          <div class="fb-login-button" data-max-rows="1" noddata-size="medium" data-button-type="login_with" data-show-faces="false" data-auto-logout-link="true" data-use-continue-as="true"></div>
-                      </a>
 
-
-
-                  </div>
                   </div>
               </div>
               <div class="col-sm-4 col-lg-4 col-md-4"></div>
@@ -48,6 +50,19 @@
  </body>
 </html>
 <script>
+
+    $("#logout").click(() => {
+        console.log("에이잭스 시작전")
+        $.ajax({
+            url: "/auth/logout",
+            method: "GET",
+            data: "",
+            success: function(result) {
+                console.log("ajax성공!");
+            }
+
+        });
+    })
     // // 페북 sdk
     // window.fbAsyncInit = function() {
     //     FB.init({

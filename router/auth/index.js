@@ -1,12 +1,17 @@
 const router = require('express').Router();
 const controller = require('./auth.controller');
 
+/*================
+||    로그아웃   ||
+==================*/
+router.get("/logout", controller.logOut);
 
 /*================
 || 로그인 성공 시||
 ==================*/
 router.get("/login_success",controller.isLoggdIn, (req,res) => {
-    res.send(req.user);
+    console.log(req.user);
+    res.redirect("/");
 });
 
 /*================

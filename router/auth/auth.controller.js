@@ -141,12 +141,20 @@ exports.loginPage = (req,res) => {
 ==========================*/
 exports.isLoggdIn = (req,res,next) => {
     if(req.isAuthenticated()) {  //로그인 되었다면 true로 다음 파이프라인으로 진행
-        console.log("로그인 되어있다")
+        console.log("로그인 댔다")
         return next();
     } else {
         console.log("로그인 안되어 있다.")
         res.redirect("/users/login")  //비로그인 시 /login 으로
     }
+}
+/* ========================
+||      로그아웃          ||
+==========================*/
+exports.logOut = (req,res,next) => {
+    console.log("로그아웃시작")
+    req.logout();
+    res.redirect("/");
 }
 /* ========================
 ||       jwt 발급         ||

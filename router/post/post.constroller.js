@@ -34,17 +34,20 @@ exports.writePost = (req,res) => {
 
 //해당게시물보기
 exports.readPostInfo = (req,res) => {
+    console.log("해당게시물보기로 들어옴")
     Post.findOne({_id:req.params.id}, (err, post) => {
 
         if(err) return res.json(err);
         //조회수 1 늘리기
         post.count +=1;
+        //5개씩 댓글갯수 페이징 
+        let reply_pg = Math.ceil(post.comments.length/5);
         //조회수 1늘린거를 디비에 저장
         post.save((err) => {
             if(err) throw err;
         });
 
-        res.render("posts/show", {post:post});
+        res.render("posts/show", {post:post, replyPage:reply_pg});
     })
 }
 
@@ -79,10 +82,6 @@ exports.searchPost = (req,res) => {
     let search_word = req.param("searchWord");
     let searchCondition = {$regex:search_word};
 
-    console.log("searchType:"+searchType);
-    console.log("searchCondition:"+searchCondition);
-    console.log("search_word:"+search_word)
-
     if(searchType === "title_contents") {
         Pagination(req,res,5,{$or:[{title:searchCondition}, {contents: searchCondition}]});
     } else if(searchType === "title") {
@@ -90,10 +89,48 @@ exports.searchPost = (req,res) => {
     } else if(searchType === "contents") {
         Pagination(req,res,5,{contents:search_word});
     } else if(searchType === "wrtier") {
-
+        
     }
 
+}
 
+//댓글달기 
+exports.addComment = (req,res) =>{
+        // 댓글 다는 부분
+        var reply_writer = req.body.replyWriter;
+        var reply_comment = req.body.replyComment;
+        var reply_id = req.body.replyId;
+
+        Post.findOne({_id:reply_id}, (err, post) => {
+           
+            if(err) throw err;
+              //unshift를 사용하여 댓글을 배열 앞으로 추가해줌 
+        
+            post.comments.unshift({name:reply_writer, memo:reply_comment});
+           
+            post.save((err)=> {
+                if(err) throw err;
+            });
+           
+            res.redirect('/posts/'+reply_id);
+        });
+    
+}
+
+exports.readComments = (req,res) => {
+
+        // 댓글 ajax로 페이징 하는 부분
+        let id = req.param('id');
+        let page = req.param('page');
+        let max = req.param('max'); // 댓글 총 갯수 확인
+        let skipSize = (page-1)*5; 
+        let limitSize = skipSize + 5;
+
+        if(max < skipSize+5) {limitSize = max*1;} // 댓글 갯수 보다 넘어가는 경우는 댓글 수로 맞춰줌 (몽고디비 쿼리에서 limit은 양의 정수여야함)
+        Post.findOne({_id: id}, {comments: {$slice: [skipSize, limitSize]}} , function(err, pageReply){
+            if(err) throw err;
+            res.send(pageReply.comments);
+        });
 }
 
 //pagination(req,res,한페이지에 보여줄 게시물갯수, 몽고디비검색조건)
@@ -104,8 +141,10 @@ Pagination = (req,res,limitPage,queryCondition) => {
         if(err) return res.json({message:err});
         let skipSize = (page-1)*limit; // 3번째 페이지를 클릭하면 limit*2개 건너뜀
         let maxPage = Math.ceil(count/limit); 
-                 
-        Post.find(queryCondition).sort("date:1").skip(skipSize).limit(limit).exec((err,posts) => {
+        
+        //sort 메소드를 이용해 내림차순,오름차순 가능 
+        //{key : value}형태이고 value는 1 또는 -1이다. 1은 오름차순 -1은 내림차순 
+        Post.find(queryCondition).sort({"date":-1}).skip(skipSize).limit(limit).exec((err,posts) => {
         if(err) return res.json({message:err});
         console.log("검색조건으로 찾은 내용:"+JSON.stringify(posts));
         res.render("posts", {posts:posts, page:page, maxPage:maxPage});
