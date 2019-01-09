@@ -60,7 +60,7 @@ exports.readPostInfo = (req,res) => {
             if(err) throw err;
         });
 
-        res.render("posts/show", {post:post, replyPage:reply_pg});
+        res.render("posts/show", {post:post, replyPage:reply_pg, req:req});
     })
 }
 

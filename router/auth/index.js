@@ -1,6 +1,7 @@
 const router = require('express').Router();
 const controller = require('./auth.controller');
 
+
 /*================
 ||    로그아웃   ||
 ==================*/
@@ -13,7 +14,13 @@ router.get("/login_success",controller.isLoggdIn, (req,res) => {
     console.log(req.user);
     res.redirect("/");
 });
-
+/*================
+|| 로그인 실패 시||
+==================*/
+router.get("/login_fail", (req,res) => {
+    console.log("로그인 실패");
+    res.redirect("/");
+});
 /*================
 ||페이스북 로그인||
 ==================*/

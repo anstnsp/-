@@ -16,10 +16,10 @@
    <h2>게시판</h2>
 
    <div class="buttons">
-    <a class="btn btn-default" href="/posts">Back</a>
-    <a class="btn btn-default" href="/posts/<%= post._id %>/edit">Edit</a>
+    <a class="btn btn-default" href="/posts">뒤로가기</a>
+    <a class="btn btn-default" href="/posts/<%= post._id %>/edit">게시물수정</a>
     <form action="/posts/<%= post._id %>?_method=delete" method="post">
-     <a class="btn btn-default" href="#" onclick="confirm('해당 게시물을 삭제 하시겠습니까?')?this.parentElement.submit():null;">Delete</a>
+     <a class="btn btn-default" href="#" onclick="confirm('해당 게시물을 삭제 하시겠습니까?')?this.parentElement.submit():null;">게시물삭제</a>
     </form>
    </div>
 
@@ -48,7 +48,7 @@
             <% if (i < 5 ) { %>
             <div class="reply_content">
                 <div class="reply_info">작성자 : <%=commentsList[i].name%> /     작성일 : <%=dateFormatChange(commentsList[i].date)%></div>
-                <div class="reply_text"><%=commentsList[i].memo%></div>
+                <div class="reply_text">내용 :   <%=commentsList[i].memo%></div>
 
                 
             </div>
@@ -88,12 +88,18 @@
     <!-- 댓글 페이징 끝-->
 
 
+
    <form id="replyAction" action="/posts/reply" method="post">
     <div class="reply_writer">
-        <input type="text" class="replyWriter" id="replyWriter" name="replyWriter" placeholder="댓글작성자">
+        <span>작성자 : 
+            <% if( req.user ) { %>
+        <input type="text" class="replyWriter" id="replyWriter" name="replyWriter" placeholder="댓글작성자" value="<%=req.user.username%>" readonly=true></span>
+            <%} else {%>
+        <input type="text" class="replyWriter" id="replyWriter" name="replyWriter" placeholder="댓글작성자" value="비로그인 회원" readonly=true></span>    
+            <%}%>
     </div>
     <div class="reply_comment">
-        <textarea class="replyComment" id="replyComment" name="replyComment" rows="3" cols="30"></textarea>
+            <textarea class="replyComment" id="replyComment" name="replyComment" rows="3" cols="30"></textarea>
     </div>
     <input type="hidden" name="replyId" id="replyId" value="<%=post._id%>">
     <button type="submit">댓글 작성</button>

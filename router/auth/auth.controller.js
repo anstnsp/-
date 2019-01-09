@@ -6,6 +6,10 @@ const LocalStrategy    = require("passport-local").Strategy;
 const FacebookStrategy = require("passport-facebook").Strategy;
 const nodeMailer       = require("nodemailer");
 const KakaoStrategy    = require("passport-kakao").Strategy;
+
+exports.privateInformation = (req,res,next) => {
+    
+}
 /* ========================
 || passport-kakao 인증   ||
 ==========================*/
@@ -42,7 +46,7 @@ passport.use(new KakaoStrategy({
                     return done(err,user);
                 });
             } else {
-                console.log("페북회원가입시 회원정보가 있을 때 회원정보:"+user);
+                console.log("카카오로 로그인시 회원정보가 있을 때 회원정보:"+user);
                 return done(err, user);
             } 
         });
@@ -199,50 +203,6 @@ exports.login = (req,res,next) => {
                     } //else
                 });
 };
-
-
-/* ========================
-||       이메일검증       ||
-==========================*/
-exports.verifyEmail = (req,res,next) => {
-    let email = req.body.email;
-
-    let transportor = nodeMailer.createTransport({ //메일발송객체 생성
-        service : "gmail",
-        auth    : {
-            user : process.env.GMAIL_ACCOUNT,         //gmail 계정 아이디
-            pass : process.env.GMAIL_PASSWORD         //gmail 계정 비밀번호
-        }
-    });
-
-    let mailOption = {
-        from    : "anstnsp1@gmail.com", //발송 메일 주소 (위에 작성한 gmail 아이디)
-        to      : email,                //수신 메일 주소
-        subject : "안녕하세요 문슈's 입니다. 이메일 인증을 해주세요.",  // 제목
-        html    : '<p>아래의 링크를 클릭해주세요 !</p>' +
-            "<a href='http://localhost:7777/auth/?email="+ email +"&token=abcdefg'>인증하기</a>"
-
-
-    };
-
-    transportor.sendMail(mailOption, (err,info) => {
-        if (err) {
-            console.log(err);
-        } else {
-            console.log("email send Success!!" + info.response);
-        }
-    });
-
-}
-exports.confirmEmail = (req,res,next) => {
-    let email2 = req.query.email;
-    let token = req.query.token;
-    console.log(req.email)
-    console.log(req.token)
-    console.log(email2);
-    console.log(token)
-    if(req.email === email2 && req.token === token) next();
-}
 /* ========================
 ||      토큰검증         ||
 ==========================*/

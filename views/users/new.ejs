@@ -10,35 +10,42 @@
 
   <div class="container user user-new">
 
-   <form class="user-form form-horizontal" action="/user" method="post">
+   <form class="user-form form-horizontal" action="/user" method="POST">
     <div class="contentBox">
-     <h3 class="contentBoxTop">New UserController</h3>
+     <h3 class="contentBoxTop">회원가입</h3>
      <fieldset>
       <div class="form-group">
-       <label for="username" class="col-sm-3 control-label">Username*</label>
+       <label for="username" class="col-sm-3 control-label">이름(Username)*</label>
        <div class="col-sm-9">
         <input class="form-control" type="text" id="username" name="username" value="">
        </div>
       </div>
       <div class="form-group">
-       <label for="name" class="col-sm-3 control-label">Name*</label>
+       <label for="name" class="col-sm-3 control-label">아이디(ID)*</label>
        <div class="col-sm-9">
         <input class="form-control" type="text" id="name" name="name" value="">
        </div>
       </div>
       <div class="form-group">
-       <label for="email" class="col-sm-3 control-label">Email</label>
+       <label for="email" class="col-sm-3 control-label">이메일(Email)</label>
        <div class="col-sm-9">
         <input class="form-control" type="text" id="email" name="email" value="">
        </div>
       </div>
       <div class="form-group">
-       <label for="password" class="col-sm-3 control-label">Password*</label>
+       <label for="password" class="col-sm-3 control-label">비밀번호(Passwowrd)*</label>
        <div class="col-sm-9">
         <input class="form-control" type="password" id="password" name="password" value="">
        </div>
       </div>
-
+      <div class="form-group">
+            <label for="comfirmEmailNum" class="col-sm-3 control-label">이메일인증번호*</label>
+            <div class="col-sm-9">
+             <input class="form-control" type="text" id="comfirmEmailNum" name="comfirmEmailNum" value="">
+             <!-- form안의 버튼을 누르면 전송이 되는데 button의 type을 button ex) type="button" 하면 전송을 막을 수 있다. -->
+             <button id="emailSend" type="button">인증번호받기</button><button id="verifyNum" type="button">인증번호확인</button>
+            </div>
+           </div>
 
       <p>
        <small>*Required</small>
@@ -55,10 +62,88 @@
 </html>
 
 <script>
- $("#submitBtn").click(function(){
 
-     alert("회원가입 메일이 발송되었습니다. \n메일을 확인해 주시면 회원가입이 완료됩니다.")
- })
+    let IsSubmit = false;
+
+ $("#submitBtn").click(function(){
+     
+    if(IsSubmit == false) {
+        alert("이메일인증을 완료해 주세요.");
+        return false;
+    } else {
+        IsSubmit = false;
+        alert("회원가입이 완료 되었습니다 \n 감사합니다.")
+    }
+
+    
+
+ });
+/*=================
+||인증번호받기 클릭||
+==================*/
+ $("#emailSend").click(() => {
+       let email = $("#email").val();
+       alert(email);
+       if(email == "") {
+           alert("메일주소를 입력해주세요.");
+       } else if(verifyEmail() == false) {
+           alert("메일형식이 맞지 않습니다.")
+       } else {
+            $.ajax({
+                url: "/user/sendEmail",
+                method: "GET",
+                data: {"email":email},
+                success: function(result) {
+                    alert(result);
+                }, 
+                error : function(){
+                    alert("이메일 전송 실패!!")
+                }
+            });
+       }
+
+       return true;
+})
+/*=================
+||인증번호확인 클릭||
+==================*/
+$("#verifyNum").click(() => {
+
+    let comfirmEmailNum = $("#comfirmEmailNum").val();
+
+    $.ajax({
+        url: "/user/comfirmEmailNum",comfirmEmailNum,
+        method: "GET",
+        data: {"comfirmEmailNum":comfirmEmailNum},
+        success: function(result) {
+            if(result == true) { 
+                IsSubmit = true;
+                alert("인증번호가 확인되었습니다.");
+            } else {
+                IsSubmit = false;
+                alert("인증번호가 일치하지 않습니다.");
+            }
+        }
+    });
+       return true;
+});
+/*===============
+||이메일형식 검증||
+================*/
+verifyEmail = function() {
+  // 이메일 검증 스크립트 작성
+  let emailVal = $("#email").val();
+  let regExp = /^[A-Za-z0-9_\.\-]+@[A-Za-z0-9\-]+\.[A-Za-z0-9\-]+/;
+  // 검증에 사용할 정규식 변수 regExp에 저장
+
+  if (emailVal.match(regExp) != null) {
+    return true;
+  }
+  else {
+    return false;
+  }
+};
+
 
 </script>
 

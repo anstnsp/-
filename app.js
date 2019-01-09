@@ -69,7 +69,11 @@ app.use(function (req, res, next) {
 });
 app.use(methodOverriide("_method"));
 //resave 세션아이디를 접속할때마다 발급.(true)
-app.use(session({ secret: '비밀코드', resave: true, saveUninitialized: false })); // 세션 활성화
+app.use(session({   secret: '비밀코드', //세션 설정할때 key 아무거나 길게 쓰고 주기적으로 바꿔야함
+                    resave: false,     //세션을 저장하는 방법이 여러가지인데(redis,mongodb 등등) 저장하고 불러오는 과정에서 세션을 다시 저장할건지 설정
+                    saveUninitialized: false, // 세션을 저장할때 초기화 해줄지 선택
+                    cookie: { maxAge : 360000, httpOnly : true},
+                    rolling: true })); //처음 로그인 했을때 세션이 저장 되는데 로그인상태에서 다른 페이지로 이동할 때마다,세션값에 변화를 줄건지(maxAge나 expire시간) 설정
 app.use(passport.initialize()); // passport 구동
 app.use(passport.session()); // 로그인 세션 유지
 
