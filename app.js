@@ -18,19 +18,23 @@ console.log(__dirname+"/"+envFileName);
 /* ========================
 ||  LOAD THE DEPENDENCIES ||
 ==========================*/
-const express = require("express");
-const https = require("https");
-const fs = require("fs");
-const app = express();
-const port1 = process.env.PORT || 7777;
-const port2 = process.env.PORT || 443;
-const bodyParser = require("body-parser");
-const mongoose = require("mongoose");
-const path = require("path");
-const methodOverriide = require("method-override");
-const session = require("express-session");
-const passport = require("passport");
+const express           = require("express");
+const app               = express();
+const fs                = require("fs");
+const http              = require("http").Server(app);
+const https             = require("https");
+const port1             = process.env.PORT || 7777;
+const port2             = process.env.PORT || 443;
+const bodyParser        = require("body-parser");
+const mongoose          = require("mongoose");
+const path              = require("path");
+const methodOverriide   = require("method-override");
+const session           = require("express-session");
+const passport          = require("passport");
+const io                = require("socket.io")(http); 
 
+
+//https에 사용할 대칭키 파일
 let options = {
     key : fs.readFileSync("./public/private.pem", "utf8"),
     cert : fs.readFileSync("./public/public.pem","utf8")
@@ -118,6 +122,31 @@ app.use((err,req,res,next) => {
         error : err
     })
 });
+
+/* ========================
+||    채팅서버 부분        ||
+==========================*/
+var count=1;
+io.on('connection', function(socket){ //3
+  console.log('user connected: ', socket.id);  //3-1
+  var name = "user" + count++;                 //3-1
+  io.to(socket.id).emit('change name',name);   //3-1
+
+  socket.on('disconnect', function(){ //3-2
+    console.log('user disconnected: ', socket.id);
+  });
+
+  socket.on('send message', function(name,text){ //3-3
+    var msg = name + ' : ' + text;
+    console.log(msg);
+    io.emit('receive message', msg);
+  });
+});
+
+http.listen(3000, function(){ //4
+    console.log('채팅서버 가동');
+  });
+
 
 
 app.listen(port1, err =>{
