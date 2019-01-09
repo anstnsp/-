@@ -7,9 +7,7 @@ const FacebookStrategy = require("passport-facebook").Strategy;
 const nodeMailer       = require("nodemailer");
 const KakaoStrategy    = require("passport-kakao").Strategy;
 
-exports.privateInformation = (req,res,next) => {
-    
-}
+
 /* ========================
 || passport-kakao 인증   ||
 ==========================*/

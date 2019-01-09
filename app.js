@@ -19,8 +19,11 @@ console.log(__dirname+"/"+envFileName);
 ||  LOAD THE DEPENDENCIES ||
 ==========================*/
 const express = require("express");
+const https = require("https");
+const fs = require("fs");
 const app = express();
-const port = process.env.PORT || 7777;
+const port1 = process.env.PORT || 7777;
+const port2 = process.env.PORT || 443;
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
 const path = require("path");
@@ -28,6 +31,10 @@ const methodOverriide = require("method-override");
 const session = require("express-session");
 const passport = require("passport");
 
+let options = {
+    key : fs.readFileSync("./public/private.pem", "utf8"),
+    cert : fs.readFileSync("./public/public.pem","utf8")
+};
 
 
 /* ===========================
@@ -83,6 +90,7 @@ app.use("/", require("./router/home"));
 app.use("/user", require("./router/user"));
 app.use("/posts", require("./router/post"));
 app.use("/auth", require("./router/auth"));   //인증관련 [jwt] , //로그인 [passport]
+app.use("/crawling", require("./router/crawling"));
 
 //404에러 발생시
 app.use( (req,res,next) => {
@@ -111,10 +119,15 @@ app.use((err,req,res,next) => {
     })
 });
 
-app.listen(port, err =>{
+
+app.listen(port1, err =>{
   if(err) console.log(err);
   else console.log("Server is running at 7777 port!!");
 })
 
+// https.createServer(options, app).listen(port2, (err) => {
+//     if(err) console.log(err);
+//     else console.log("Server is running at 443 port!!");
+// })
 
 module.exports = app;

@@ -29,8 +29,13 @@ exports.writePost = (req,res) => {
     
     post.count = 0;
     post.title = req.body.title;
-    post.cotents = req.body.contents;
-    post.writer = req.user.username;
+    post.contents = req.body.contents;
+    if(req.user) { 
+        post.writer = req.user.username;
+    } else {
+        post.writer = "비회원";
+    }
+    
 
     // user.create((err,users) => {
     //     if(err) return res.json(err);
@@ -98,11 +103,11 @@ exports.searchPost = (req,res) => {
     if(searchType === "title_contents") {
         Pagination(req,res,5,{$or:[{title:searchCondition}, {contents: searchCondition}]});
     } else if(searchType === "title") {
-        Pagination(req,res,5,{title:search_word});
+        Pagination(req,res,5,{title:searchCondition});
     } else if(searchType === "contents") {
-        Pagination(req,res,5,{contents:search_word});
-    } else if(searchType === "wrtier") {
-        
+        Pagination(req,res,5,{contents:searchCondition});
+    } else if(searchType === "writer") {
+        Pagination(req,res,5,{writer:searchCondition});
     }
 
 }
@@ -154,7 +159,7 @@ Pagination = (req,res,limitPage,queryCondition) => {
         if(err) return res.json({message:err});
         let skipSize = (page-1)*limit; // 3번째 페이지를 클릭하면 limit*2개 건너뜀
         let maxPage = Math.ceil(count/limit); 
-        
+    
         //sort 메소드를 이용해 내림차순,오름차순 가능 
         //{key : value}형태이고 value는 1 또는 -1이다. 1은 오름차순 -1은 내림차순 
         Post.find(queryCondition).sort({"date":-1}).skip(skipSize).limit(limit).exec((err,posts) => {

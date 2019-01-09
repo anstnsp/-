@@ -14,16 +14,15 @@
       <button class="optionModifyBtn">네이버 팝업</button>
       <button class="openNutax">누탁스열기</button>
       <button class="openHyperExplorer">익스플로러열기</button>
- 
-      
-      <div class="row">
+
+      <div class="row" style= "float:left">
           <div class="col-sm-12 col-lg-12 col-md12">
               <div class="col-sm-4 col-lg-4 col-md-4"></div>
               <div class="col-sm-4 col-lg-4 col-md-4">
                 <% if(user) { %>
                 <%=user.username%>님 로그인중... <a href="/auth/logout"><button class="btn btn-danger">로그아웃</button></a>
                 <% } else {%>
-                    로그인 하세요!!
+                      
                     <div class="row">
                         <a class="btn btn-block btn-lg btn-social btn-naver" id="login"  href="">
                             <img class="fa"  width="200" src="kakao_login.png" alt="">회원 로그인
@@ -47,18 +46,55 @@
               </div>
               <div class="col-sm-4 col-lg-4 col-md-4"></div>
           </div>
-      </div>
+          <div class="row">
+                <div id="test" class="btn btn-success" style="float:right" ><h7>네이버 급상승검색어</h7></div>
+                <div class="crawling-tab" style= "float:right"></div>
+          </div>
+    </div>
   </div>
+  
  </body>
 </html>
 <script>
+    $("#test").click(function(){
+        setInterval(crawling = () =>{
+    $.get("/crawling/naverPopluarWord", function(rankList) {
+        var output = '';
+ 
+        for(var i=0;i<rankList.length;i++) {
+            
+            output += '<div class="naver_popularWord">'+"["+(i+1)+"위]"+"  "+rankList[i]+'</div>';
+            
+        }
+        
+        $(".crawling-tab").html(output);
+        
+    });
+}, 5000);    
+
+    })
+    
+crawling = () =>{
+    $.get("/crawling/naverPopluarWord", function(rankList) {
+        var output = '';
+ 
+        for(var i=0;i<rankList.length;i++) {
+            
+            output += '<div class="naver_popularWord">'+rankList[i]+'</div>';
+            
+        }
+
+        $(".test2").html(output);
+        
+    });
+}
     $('#login').click(function(event){  //버튼을 클릭 했을시 popupOpen 함수 출력
         console.log('click');
         popupOpen2();
     });
     //팝업호출함수
     function popupOpen2(){
-        let url= "http://localhost:7777/auth/loginPage";    //팝업창에 출력될 페이지 URL
+        let url= "http://211.232.21.18:7777/auth/loginPage";    //팝업창에 출력될 페이지 URL
         let winWidth = 500;
         let winHeight = 400;
         let top = 210;   //top,left 현재 노트북 기준 정중앙에 맞춤.
