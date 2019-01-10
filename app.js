@@ -18,31 +18,21 @@ console.log(__dirname+"/"+envFileName);
 /* ========================
 ||  LOAD THE DEPENDENCIES ||
 ==========================*/
-const express           = require("express");
-const app               = express();
-const fs                = require("fs");
-const http              = require("http").Server(app);
-const https             = require("https");
-const port1             = process.env.PORT || 7777;
-const port2             = process.env.PORT || 443;
-const bodyParser        = require("body-parser");
-const mongoose          = require("mongoose");
-const path              = require("path");
-const methodOverriide   = require("method-override");
-const session           = require("express-session");
-const passport          = require("passport");
-const io                = require("socket.io")(http); 
+const express = require("express");
+const app = express();
+const port = process.env.PORT || 7777;
+const bodyParser = require("body-parser");
+const mongoose = require("mongoose");
+const path = require("path");
+const methodOverriide = require("method-override"); //restAPI에서 PUT과 DELETE를 지원안하는 클라이언트를 위해
 
-
-//https에 사용할 대칭키 파일
-let options = {
-    key : fs.readFileSync("./public/private.pem", "utf8"),
-    cert : fs.readFileSync("./public/public.pem","utf8")
-};
-
+/* ========================
+||    LOAD THE CONFIG     ||
+==========================*/
+//const config = require('./config');
 
 /* ===========================
-|| CONNECT TO MONGODB SERVER ||
+||  CONNECT TO MONGODB SERVER ||
 =============================*/
 console.log(process.env.MONGODB_URL);
 mongoose.Promise = global.Promise;
@@ -58,7 +48,7 @@ db.on("error", (err)=>{
 
 
 //static폴더 지정
-app.use(express.static(__dirname + "/public"));
+app.use(express.static(__dirname + "/publiic"));
 
 // view engine setup
 //app.set()을 이용해서 express의 세팅을 할 수 있다.
@@ -70,7 +60,7 @@ app.set('view engine', 'ejs');
 /* ========================
 ||    미들웨어           ||
 ==========================*/
-app.use(bodyParser.json());
+app.use(bodyParser.json()); //BODY의 데이터를 JSON형식으로 받음.
 app.use(bodyParser.urlencoded({extended : true}));
 app.use(function (req, res, next) {
     res.header('Access-Control-Allow-Origin', '*');
@@ -79,30 +69,12 @@ app.use(function (req, res, next) {
     next();
 });
 app.use(methodOverriide("_method"));
-//resave 세션아이디를 접속할때마다 발급.(true)
-app.use(session({   secret: '비밀코드', //세션 설정할때 key 아무거나 길게 쓰고 주기적으로 바꿔야함
-                    resave: false,     //세션을 저장하는 방법이 여러가지인데(redis,mongodb 등등) 저장하고 불러오는 과정에서 세션을 다시 저장할건지 설정
-                    saveUninitialized: false, // 세션을 저장할때 초기화 해줄지 선택
-                    cookie: { maxAge : 360000, httpOnly : true},
-                    rolling: true })); //처음 로그인 했을때 세션이 저장 되는데 로그인상태에서 다른 페이지로 이동할 때마다,세션값에 변화를 줄건지(maxAge나 expire시간) 설정
-app.use(passport.initialize()); // passport 구동
-app.use(passport.session()); // 로그인 세션 유지
 
-app.use((req,res,next)=> {
-    //app.use에 있는 함수는 request가 올때마다 route에 상관없이 무조건 해당 함수가 실행됩니다.
-    //res.locals에 담긴 변수는 ejs에서 바로 사용가능
-    //res.locals.isAuthenticated는 ejs에서 user가 로그인 되어있는지 확인하는데 사용하고 
-    //res.locals.currentUser 는 로그인된 user의 정보를 불러오는데 사용
-    res.locals.isAuthenticated = req.isAuthenticated();
-    res.locals.currentUser = req.user;
-    next();
-})
 //라우팅
 app.use("/", require("./router/home"));
 app.use("/user", require("./router/user"));
 app.use("/posts", require("./router/post"));
-app.use("/auth", require("./router/auth"));   //인증관련 [jwt] , //로그인 [passport]
-app.use("/crawling", require("./router/crawling"));
+app.use("/auth", require("./router/auth"));   //인증관련 [jwt]
 
 //404에러 발생시
 app.use( (req,res,next) => {
@@ -130,45 +102,11 @@ app.use((err,req,res,next) => {
         error : err
     })
 });
-//1.유저가 접속됨.
-//2.서버에 있는 유저아이디로 이벤트를 발생시켜서 화면의 이름을 설정
-//3.그다음 유저가 메세지전달 이벤트를 발생 시키면 서버가 받아서 다시 소켓으로 유저에게 전달 .
 
-var count=1;
-
-io.on('connection', function(socket){ //3
-  console.log('user connected: ', socket.id);  //3-1
-  var name = "user" + count++;                 //3-1
-  io.to(socket.id).emit('change name',name);   //3-1
-  io.emit("receive message",name+"님이 입장하였습니다.")
-  socket.on('disconnect', function(){ //3-2
-    console.log('user disconnected: ', socket.id);
-    io.emit("receive message",name+"님이 퇴장하였습니다." )
-  });
-
-  socket.on('send message', function(name,text){ //3-3
-    var msg = name + ' : ' + text;
-    console.log(msg);
-    io.emit('receive message', msg);
-  });
-});
-
-//채팅서버 포트 => 3000
-// http.listen(3000, function(){ //4
-//     console.log('채팅서버 가동');
-//   });
-
-
-//http웹서버 포트 => 7777
-http.listen(port1, err =>{
+app.listen(port, err =>{
   if(err) console.log(err);
   else console.log("Server is running at 7777 port!!");
 })
 
-//https웹서버 포트 => 443
-// https.createServer(options, app).listen(port2, (err) => {
-//     if(err) console.log(err);
-//     else console.log("Server is running at 443 port!!");
-// })
 
 module.exports = app;

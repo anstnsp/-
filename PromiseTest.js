@@ -2,6 +2,27 @@
 ####Promise 예제####
 
  */
+const request = reuqre("request");
+
+const naver = new Promise((resolve,reject) => {
+    requesst.get("https://www.naver.com",(err,res,html) => {
+        resolve(html);
+    })
+})
+
+const daum = new Promise((resolve,reject) => {
+    request.get("http://www.daum.net", (err,res,html) => {
+        resolve(htmml);
+    })
+})
+
+const google = new Promise((resoslve,reject) => {
+    request.get("http://www.google.com", ((err,res,html) =>{
+        resolve(html);
+    })
+})
+
+
 User.statics.create = (username,password) => {
     const user = new this({
         username,
