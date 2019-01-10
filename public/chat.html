@@ -9,20 +9,33 @@
       .message{ width: 70%; }
       .chat{ width: 10%; }
     </style>
+
+<script src="/socket.io/socket.io.js"></script> <!-- 1 -->
+<script src="//code.jquery.com/jquery-1.11.1.js"></script>
+
+<link href="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
+<script src="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+<script src="//code.jquery.com/jquery-1.11.1.min.js"></script>
+
   </head>
   <body>
     <div>
+    <div id="wpps_popup">
       <textarea id="chatLog" class="chat_log" readonly></textarea>
     </div>
+
     <form id="chat">
-      <input id="name" class="name" type="text" readonly>
-      <input id="message" class="message" type="text">
-      <input type="submit" class="chat" value="chat"/>
+      <input id="name" class="name" type="text" length="30" readonly>
+      <input id="message" class="mytext" type="메세지"  placeholder="메세지를 입력하세요...">
+      <input type="submit" class="btn btn-info" value="전송"/>
     </form>
     <div id="box" class="box">
-    <script src="/socket.io/socket.io.js"></script> <!-- 1 -->
-    <script src="//code.jquery.com/jquery-1.11.1.js"></script>
-    <script>
+      </div>
+
+  </body>
+</html>
+
+<script>
       var socket = io(); //1
       $('#chat').on('submit', function(e){ //2
         socket.emit('send message', $('#name').val(), $('#message').val());
@@ -37,6 +50,7 @@
       socket.on('change name', function(name){ //4
         $('#name').val(name);
       });
-    </script>
-  </body>
-</html>
+
+
+
+  </script>

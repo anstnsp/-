@@ -88,7 +88,15 @@ app.use(session({   secret: '비밀코드', //세션 설정할때 key 아무거�
 app.use(passport.initialize()); // passport 구동
 app.use(passport.session()); // 로그인 세션 유지
 
-
+app.use((req,res,next)=> {
+    //app.use에 있는 함수는 request가 올때마다 route에 상관없이 무조건 해당 함수가 실행됩니다.
+    //res.locals에 담긴 변수는 ejs에서 바로 사용가능
+    //res.locals.isAuthenticated는 ejs에서 user가 로그인 되어있는지 확인하는데 사용하고 
+    //res.locals.currentUser 는 로그인된 user의 정보를 불러오는데 사용
+    res.locals.isAuthenticated = req.isAuthenticated();
+    res.locals.currentUser = req.user;
+    next();
+})
 //라우팅
 app.use("/", require("./router/home"));
 app.use("/user", require("./router/user"));
@@ -122,18 +130,20 @@ app.use((err,req,res,next) => {
         error : err
     })
 });
+//1.유저가 접속됨.
+//2.서버에 있는 유저아이디로 이벤트를 발생시켜서 화면의 이름을 설정
+//3.그다음 유저가 메세지전달 이벤트를 발생 시키면 서버가 받아서 다시 소켓으로 유저에게 전달 .
 
-/* ========================
-||    채팅서버 부분        ||
-==========================*/
 var count=1;
+
 io.on('connection', function(socket){ //3
   console.log('user connected: ', socket.id);  //3-1
   var name = "user" + count++;                 //3-1
   io.to(socket.id).emit('change name',name);   //3-1
-
+  io.emit("receive message",name+"님이 입장하였습니다.")
   socket.on('disconnect', function(){ //3-2
     console.log('user disconnected: ', socket.id);
+    io.emit("receive message",name+"님이 퇴장하였습니다." )
   });
 
   socket.on('send message', function(name,text){ //3-3
@@ -143,17 +153,19 @@ io.on('connection', function(socket){ //3
   });
 });
 
-http.listen(3000, function(){ //4
-    console.log('채팅서버 가동');
-  });
+//채팅서버 포트 => 3000
+// http.listen(3000, function(){ //4
+//     console.log('채팅서버 가동');
+//   });
 
 
-
-app.listen(port1, err =>{
+//http웹서버 포트 => 7777
+http.listen(port1, err =>{
   if(err) console.log(err);
   else console.log("Server is running at 7777 port!!");
 })
 
+//https웹서버 포트 => 443
 // https.createServer(options, app).listen(port2, (err) => {
 //     if(err) console.log(err);
 //     else console.log("Server is running at 443 port!!");

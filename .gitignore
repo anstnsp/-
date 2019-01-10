@@ -52,6 +52,8 @@
 
 *.sqlite
 
+*.env
+
  
 
 # OS generated files #

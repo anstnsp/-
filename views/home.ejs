@@ -9,12 +9,7 @@
    <div class="jumbotron">
     <h1>.........................................</h1>
    </div>
-<frameset cols="20%,60%,20%">
-    <frame src="home.ejs">
-        <frame src="chat.html">
-            <frame src="">
 
-</frameset>
 
       <button class="optionModifyBtn">네이버 팝업</button>
       <button class="openNutax">누탁스열기</button>
@@ -25,7 +20,7 @@
               <div class="col-sm-4 col-lg-4 col-md-4"></div>
               <div class="col-sm-4 col-lg-4 col-md-4">
                 <% if(user) { %>
-                <%=user.username%>님 로그인중... <a href="/auth/logout"><button class="btn btn-danger">로그아웃</button></a>
+                <div id="username"><%=user.username%></div>님 로그인중... <a href="/auth/logout"><button class="btn btn-danger">로그아웃</button></a>
                 <% } else {%>
                       
                     <div class="row">
@@ -52,15 +47,28 @@
               <div class="col-sm-4 col-lg-4 col-md-4"></div>
           </div>
           <div class="row">
-                <div id="test" class="btn btn-success" style="float:right" ><h7>네이버 급상승검색어</h7></div>
+                <div id="test" class="btn btn-success" style="float:right" ><h7>네이버 인기검색어 보기</h7></div>
                 <div class="crawling-tab" style= "float:right"></div>
           </div>
     </div>
   </div>
-  
+ 
  </body>
 </html>
 <script>
+$(window).load(function(){
+    popupOpen("http://211.232.21.18:7777/chat.html");
+
+})
+
+// function openchildewiondow(){
+//     alert($("#username").text())
+//     alert(document.getElementById("username").value);
+//     alert(document.getElementById('username').value);
+//    var windowObj =  popupOpen("http://211.232.21.18:7777/chat.html");
+//    //windowObj.document.getElementById("name22").value =$("#username").text();
+//    windowObj.document.getElementsByClassName("name22").value=$("#username").text()
+// }
     $("#test").click(function(){
         setInterval(crawling = () =>{
     $.get("/crawling/naverPopluarWord", function(rankList) {
@@ -93,7 +101,7 @@ crawling = () =>{
         
     });
 }
-    $('#login').click(function(event){  //버튼을 클릭 했을시 popupOpen 함수 출력
+    $('#login').click(function(){  //버튼을 클릭 했을시 popupOpen 함수 출력
         console.log('click');
         popupOpen2();
     });
@@ -164,8 +172,8 @@ crawling = () =>{
     function popupOpen(openurl){
         newWindow("test")
         let url        = openurl;    //팝업창에 출력될 페이지 URL
-        let winWidth   = 700;
-        let winHeight  = 600;
+        let winWidth   = 350;
+        let winHeight  = 300;
         let toolbar    = "no"; //도구모음 표시할지 여부
         let status     = "yes";
         let menubar    = "yes";
@@ -173,10 +181,12 @@ crawling = () =>{
         let top        = 210;   //상단에서부터 팝업의 위치를 지정
         let left       = 600;  //좌측부터 팝업의 위치를 지정
         let location   = "no" //주소표시줄 표시여부
-        let scrollbars = "no" // 스크롤바 표시 여부 (내용이 창보다 클 경우)
-        let popupOption= "width="+winWidth+", height="+winHeight;    //팝업창 옵션(optoin)
+        let scrollbars = "yes" // 스크롤바 표시 여부 (내용이 창보다 클 경우)
+        let popupOption= "width="+winWidth+", height="+winHeight +", top="+top +", left="+left ;    //팝업창 옵션(optoin)
         let myWindow   = window.open(url,newName,popupOption);
         //myWindow.document.write("<h1>"+myWindow.name+"</h1>");
         return myWindow;
     }
+
+
 </script>
