@@ -52,7 +52,7 @@
 
 *.sqlite
 
-*.env
+.env-local
 
  
 
