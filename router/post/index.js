@@ -17,12 +17,21 @@ router.get("/:id", controller.readPostInfo);
 //해당게시물수정페이지
 router.get("/:id/edit", controller.goEditPage);
 //해당게시물수정하기
-router.put("/:id", controller.editPost);
+router.put("/:id",checkPermission, controller.editPost);
 //해당게시물 삭제하기
-router.delete("/:id", controller.deletePost);
+router.delete("/:id",checkPermission, controller.deletePost);
 //게시물에 댓글달기 
 router.post("/reply", controller.addComment)
 
 
 
 module.exports = router;
+
+function checkPermission(req, res, next){
+    Post.findOne({_id:req.params.id}, function(err, post){
+     if(err) return res.json(err);
+     if(post.writer != req.user.username) return res.send("해당게시물 작성자가 아닙니다.");
+     
+     next();
+    });
+   }

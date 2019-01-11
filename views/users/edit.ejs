@@ -14,43 +14,36 @@
     <a class="btn btn-default" href="/user/<%= user.username %>">뒤로가기</a>
    </div>
 
-   <form class="user-form form-horizontal" action="/user/<%= user.username %>?_method=put" method="post">
+   <form class="user-form form-horizontal" action="/user/<%=user.username%>/edit?_method=PUT" method="post">
     <div class="contentBox">
-     <h3 class="contentBoxTop">Edit UserController</h3>
+     <h3 class="contentBoxTop"><%=currentUser.username%>님의 정보</h3>
      <fieldset>
       <div class="form-group">
-       <label for="currentPassword" class="col-sm-12 control-label">Current Password*</label>
-       <div class="col-sm-9 col-sm-offset-3">
-        <input class="form-control" type="password" id="currentPassword" name="currentPassword" value="">
-       </div>
-      </div>
-      <hr></hr>
-      <div class="form-group">
-       <label for="username" class="col-sm-3 control-label">Username*</label>
+       <label for="username" class="col-sm-3 control-label">이름(Username)*</label>
        <div class="col-sm-9">
         <input class="form-control" type="text" id="username" name="username" value="<%= user.username %>">
        </div>
       </div>
       <div class="form-group">
-       <label for="name" class="col-sm-3 control-label">Name*</label>
+       <label for="name" class="col-sm-3 control-label">아이디(ID)*</label>
        <div class="col-sm-9">
         <input class="form-control" type="text" id="name" name="name" value="<%= user.name %>">
        </div>
       </div>
       <div class="form-group">
-       <label for="email" class="col-sm-3 control-label">Email</label>
+       <label for="email" class="col-sm-3 control-label">이메일(Email)</label>
        <div class="col-sm-9">
         <input class="form-control" type="text" id="email" name="email" value="<%= user.email %>">
        </div>
       </div>
       <div class="form-group">
-       <label for="newPassword" class="col-sm-12 control-label">New Password</label>
+       <label for="newPassword" class="col-sm-12 control-label">새비밀번호(New Password)*</label>
        <div class="col-sm-9 col-sm-offset-3">
         <input class="form-control" type="password" id="newPassword" name="newPassword" value="">
        </div>
       </div>
       <div class="form-group">
-       <label for="passwordConfirmation" class="col-sm-12 control-label">Password Confirmation</label>
+       <label for="passwordConfirmation" class="col-sm-12 control-label">새 비밀번호확인(Password Confirmation)</label>
        <div class="col-sm-9 col-sm-offset-3">
         <input class="form-control" type="password" id="passwordConfirmation" name="passwordConfirmation" value="">
        </div>
@@ -61,10 +54,25 @@
      </fieldset>
     </div>
     <div class="buttons">
-     <button type="submit" class="btn btn-default">Submit</button>
+     <button type="submit" id="editSubmit" class="btn btn-default">Submit</button>
     </div>
    </form>
 
   </div> <!-- container end -->
  </body>
 </html>
+
+<script>
+$("#editSubmit").click(()=>{
+    let newPassword = $("#newPassword").val();
+    let passwordConfirmation = $("#passwordConfirmation").val();
+
+    if(newPassword != passwordConfirmation) {
+        alert("비밀번호와 비밀번호확인의 값이 틀립니다.")
+        return false; 
+    } else {
+        return true;
+    }
+})
+
+</script>

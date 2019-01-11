@@ -7,20 +7,25 @@
   <% include ./partials/nav %>
   <div class="container home home-welcome">
    <div class="jumbotron">
-    <h1>.........................................</h1>
+    <h1>문슈's Home!</h1>
    </div>
 
 
-      <button class="optionModifyBtn">네이버 팝업</button>
+      <!-- <button class="optionModifyBtn">네이버 팝업</button>
       <button class="openNutax">누탁스열기</button>
-      <button class="openHyperExplorer">익스플로러열기</button>
+      <button class="openHyperExplorer">익스플로러열기</button> -->
 
       <div class="row" style= "float:left">
           <div class="col-sm-12 col-lg-12 col-md12">
               <div class="col-sm-4 col-lg-4 col-md-4"></div>
               <div class="col-sm-4 col-lg-4 col-md-4">
-                <% if(user) { %>
-                <div id="username"><%=user.username%></div>님 로그인중... <a href="/auth/logout"><button class="btn btn-danger">로그아웃</button></a>
+                <% if(currentUser) { %>
+                <div id="username"><%=currentUser.username%></div>님 로그인중... <a href="/auth/logout"><button class="btn btn-danger">로그아웃</button></a>
+                <a href="/user/<%=currentUser.username%>/editPage"><button class="btn btn-info">정보수정</button></a>
+                <!-- <form action="/user/<%=currentUser.username%>?_method=delete" method="post">
+                    <a class="btn btn-success" href="#" onclick="confirm('정말 탈퇴 하시겠습니까?')?this.parentElement.submit():null;">회원탈퇴</a>
+                </form> -->
+                <button class="btn btn-success" id="deleteUser">회원탈퇴</button>
                 <% } else {%>
                       
                     <div class="row">
@@ -28,7 +33,7 @@
                             <img class="fa"  width="200" src="kakao_login.png" alt="">회원 로그인
                         </a>
                         <a class="btn btn-block btn-lg btn-social btn-naver" href="/auth/login/naver">
-                            <img class="fa"  width="200" src="kakao_login.png" alt="">네이버 계정으로 로그인
+                            <img class="fa"  width="200" src="../image/naver_login.png" alt="">
                         </a>
                         <a class="btn btn-block btn-lg btn-social btn-kakao" href="/auth/login/kakao">
                             <img class="fa" width="200" height="50" src="../image/kakao_login.png">
@@ -56,19 +61,35 @@
  </body>
 </html>
 <script>
+  
+$("#deleteUser").click(()=>{
+    let username = $("#username").text();
+    alert(username);
+    if(confirm('정말 탈퇴 하시겠습니까?') == true) {
+        $.ajax({
+            url: "/user/"+username,
+            method: "DELETE",
+            data : {"username":username},
+            success : function(result) {
+                alert("회원탈퇴가 완료되었습니다.");
+               
+            },
+            error : function(result) {
+                alert("탈퇴처리중 에러발생!!");
+            }
+
+        })
+    } else {
+        return false;
+    }
+    window.location.href = "http://211.232.21.18:7777/";
+})
 $(window).load(function(){
     popupOpen("http://211.232.21.18:7777/chat.html");
 
 })
 
-// function openchildewiondow(){
-//     alert($("#username").text())
-//     alert(document.getElementById("username").value);
-//     alert(document.getElementById('username').value);
-//    var windowObj =  popupOpen("http://211.232.21.18:7777/chat.html");
-//    //windowObj.document.getElementById("name22").value =$("#username").text();
-//    windowObj.document.getElementsByClassName("name22").value=$("#username").text()
-// }
+
     $("#test").click(function(){
         setInterval(crawling = () =>{
     $.get("/crawling/naverPopluarWord", function(rankList) {

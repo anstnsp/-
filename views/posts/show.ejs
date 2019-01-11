@@ -17,10 +17,12 @@
 
    <div class="buttons">
     <a class="btn btn-default" href="/posts">뒤로가기</a>
+    <% if(isAuthenticated && currentUser.username == post.writer) { %>
     <a class="btn btn-default" href="/posts/<%= post._id %>/edit">게시물수정</a>
     <form action="/posts/<%= post._id %>?_method=delete" method="post">
      <a class="btn btn-default" href="#" onclick="confirm('해당 게시물을 삭제 하시겠습니까?')?this.parentElement.submit():null;">게시물삭제</a>
     </form>
+    <% } %>
    </div>
 
    <div class="contentBox">

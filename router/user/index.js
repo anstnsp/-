@@ -14,13 +14,14 @@ router.get("/sendEmail", controller.sendEmail);
 //회원가입 인증번호확인
 router.get("/comfirmEmailNum", controller.comfirmEmailNum);
 
-
+//회원탈퇴
+router.delete("/:username", controller.deleteUser)
 //회원정보보기
 router.get("/:username", controller.showUserInfo);
 //회원정보수정페이지
-router.get("/:username/edit", controller.editPage);
+router.get("/:username/editPage", controller.editPage);
 //회원정보수정
-//router.put("/:username", controller.editUser);
+router.put("/:username/edit", controller.editUser);
 
 
 module.exports = router;

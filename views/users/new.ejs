@@ -83,7 +83,7 @@
 ==================*/
  $("#emailSend").click(() => {
        let email = $("#email").val();
-       alert(email);
+      
        if(email == "") {
            alert("메일주소를 입력해주세요.");
        } else if(verifyEmail() == false) {
@@ -143,7 +143,20 @@ verifyEmail = function() {
     return false;
   }
 };
+/*==================
+||이름(username)검증||
+===================*/
+verifyUsername = () => {
+    let username = $("#username").val();
+    let regExp =  /^.{4,12}$/;
 
+    if(username.match(regExp) != null) {
+        return ture;
+    } else {
+        return false; 
+    }
+
+}
 
 </script>
 

@@ -6,8 +6,49 @@ const LocalStrategy    = require("passport-local").Strategy;
 const FacebookStrategy = require("passport-facebook").Strategy;
 const nodeMailer       = require("nodemailer");
 const KakaoStrategy    = require("passport-kakao").Strategy;
+const NaverStrategy    = require("passport-naver").Strategy;
 
+/* ========================
+|| passport-naver 인증   ||
+==========================*/
+exports.NAVERIsAuthenticate = passport.authenticate("naver");
 
+exports.CallbackNAVER = passport.authenticate("naver",{
+    successRedirect : "/auth/login_success",
+    failureRedirect : "/auth/login_fail"
+});
+passport.use(new NaverStrategy({
+
+    clientID: process.env.NAVER_CLIENT_ID,
+    clientSecret: process.env.NAVER_CLIENT_SECRET, //clientSecret을 사용하지 않는다면 넘기지 말거나 빈스트링
+    callbackURL: process.env.NAVER_CALLBACK_URL
+
+},
+    (accessToken,refreshToken, profile, done) => {
+    //사용자의 정보는 profile 안에 있다.
+        console.log("카카오 프로필:"+JSON.stringify(profile));
+        User.findOne({username:profile.displayName}, (err,user) =>{
+            if(err) return done(err);
+            if(!user) {
+                user = new User({
+                    username : profile.displayName,
+                    name     : profile.id,
+                    email    : profile._json.email,
+                    Provider : profile.provider,
+                    NAVERToken: accessToken
+                });
+
+                user.save((err) =>{
+                    if(err) console.log(err);
+                    return done(err,user);
+                });
+            } else {
+                console.log("네이버로 로그인시 회원정보가 있을 때 회원정보:"+user);
+                return done(err, user);
+            } 
+        });
+    }
+    ));
 /* ========================
 || passport-kakao 인증   ||
 ==========================*/

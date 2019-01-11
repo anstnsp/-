@@ -58,6 +58,49 @@ exports.sendEmail = (req,res,next) => {
     });
     
 }
+//회원탈퇴
+exports.deleteUser = (req,res) => {
+    /*
+    1.탈퇴버튼을 누른다.
+    2.비밀번호 입력칸이 뜨고 정상입력이 된다면 정말 탈퇴하시겠습니까? 
+    3.탈퇴 처리 후 로그아웃시키고 메인으로 리다이렉트 
+    */
+   console.log("deleteuser####")
+   
+    User.remove({username:req.params.username}, (err) => {
+        if(err) return res.json(err);
+        req.logout();
+        res.render("home");
+    })
+}
+//회원정보수정
+exports.editUser = (req,res) => {
+    //정보 받아서 
+    //저장하고 수정되었다는 메시지 띄운 후 메인으로 리다이렉트 
+    let user = new User();
+
+    User.findOne({username:req.params.username}, (err,data) => {
+        if(err) {
+            throw err;
+        } else {
+            console.log("username으로 찾은 디비정보:"+data._id);
+            user.username = req.body.username;
+            user.name = req.body.name;
+            user.email = req.body.email;
+            user.password = encryptoHash(req.body.newPassword);
+            console.log("정보수정 유저정보:"+user);
+            User.update({_id:data._id},{$set: {username: user.username, name: user.name, email: user.email, password:user.password}},(err,data2)=>{
+                if(err) return res.json(err);
+                console.log("정보를 수정한 유저의 정보:"+JSON.stringify(data2));
+                res.redirect("/");
+            })
+        }
+    })
+
+
+
+}
+
 
 exports.comfirmEmailNum = (req,res,next) => {
  
@@ -117,7 +160,7 @@ exports.showUserInfo = (req,res) => {
         res.render("users/show", {user:user});
     });
 }
-//회원정보수정
+//회원정보수정페이지
 exports.editPage = (req,res) => {
     User.findOne({username:req.params.username}, (err, user)=>{
         if(err) return res.json(err);

@@ -6,6 +6,7 @@
     "bcrypt-nodejs": "0.0.3",
     "body-parser": "^1.18.3",
     "cheerio": "^1.0.0-rc.2",
+    "connect-flash": "^0.1.1",
     "crypto": "^1.0.1",
     "dotenv": "^6.2.0",
     "ejs": "^2.6.1",

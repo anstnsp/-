@@ -13,7 +13,8 @@ const userSchema = mongoose.Schema({
     FBToken : {type:String},    //페북토큰
     KAKAOToken : {type:String}, //카카오토큰
     NAVERToken : {type:String},  //네이버토큰
-    Provier : {type:String}    //정보제공자
+    Provider : {type:String}    //정보제공자
+    
 });
 
 /*

@@ -22,6 +22,18 @@ router.get("/login_fail", (req,res) => {
     res.redirect("/");
 });
 /*================
+|| 네이버 로그인 ||
+==================*/
+router.get("/login/naver", controller.NAVERIsAuthenticate);
+router.get("/naver/callback", controller.CallbackNAVER);
+
+/*================
+||카카오톡 로그인||
+==================*/
+router.get("/login/kakao", controller.KAKAOIsAuthenticate);
+router.get("/kakao/callback", controller.CallbackKAKAO );
+
+/*================
 ||페이스북 로그인||
 ==================*/
 router.get("/login/facebook", controller.FaceBookIsAuthenticate);
@@ -32,11 +44,7 @@ router.get("/facebook/callback", controller.CallbackFaceBook, (req,res) => {
     res.redirect("/");
 });
 
-/*================
-||카카오톡 로그인||
-==================*/
-router.get("/login/kakao", controller.KAKAOIsAuthenticate);
-router.get("/kakao/callback", controller.CallbackKAKAO );
+
 
 
 
