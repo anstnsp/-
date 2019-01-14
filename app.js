@@ -134,23 +134,26 @@ app.use((err,req,res,next) => {
 //2.서버에 있는 유저아이디로 이벤트를 발생시켜서 화면의 이름을 설정
 //3.그다음 유저가 메세지전달 이벤트를 발생 시키면 서버가 받아서 다시 소켓으로 유저에게 전달 .
 
-var count=1;
 
-io.on('connection', function(socket){ //3
-  console.log('user connected: ', socket.id);  //3-1
-  var name = "user" + count++;                 //3-1
-  io.to(socket.id).emit('change name',name);   //3-1
+
+io.on('connection', function(socket){
+  console.log('user connected: ', socket.id); 
+                
+  //io.to(socket.id).emit('change name',name);   
   io.emit("receive message",name+"님이 입장하였습니다.")
-  socket.on('disconnect', function(){ //3-2
+
+
+  socket.on('disconnect', function(){ 
     console.log('user disconnected: ', socket.id);
     io.emit("receive message",name+"님이 퇴장하였습니다." )
   });
 
-  socket.on('send message', function(name,text){ //3-3
+  socket.on('send message', function(name,text){
     var msg = name + ' : ' + text;
     console.log(msg);
     io.emit('receive message', msg);
   });
+  
 });
 
 //채팅서버 포트 => 3000

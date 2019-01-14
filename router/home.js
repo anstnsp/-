@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
-
+const http = require('http');
+const io = require("socket.io");
 
 //메인페이지
 router.get('/', (req, res) => {
@@ -25,4 +26,8 @@ router.get('/', (req, res) => {
    
 })
 
+router.get("/chat", (req,res) => {
+
+    res.render("chat2");
+})
 module.exports = router;

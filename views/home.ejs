@@ -55,13 +55,28 @@
                 <div id="test" class="btn btn-success" style="float:right" ><h7>네이버 인기검색어 보기</h7></div>
                 <div class="crawling-tab" style= "float:right"></div>
           </div>
+          <div class="row" id="joinchat" style= "float:right">채팅방 입장</div>
     </div>
   </div>
- 
+
  </body>
 </html>
 <script>
-  
+    //입장하면 팝업창을 띄움... 이때 유저의 아이디를 전달 ? 아니면 그냥 화면에서 req.user?
+    //
+$("#joinchat").click(()=>{
+    let username = $("#username").text();
+    
+
+    if(username == "")  username = "비회원";
+       
+
+    alert(username);
+   let windowObj = popupOpen("http://211.232.21.18:7777/chat");
+   windowObj.document.getElementById("loginID").value= username;
+   alert(windowObj.document.getElementById("username").value);
+
+})
 $("#deleteUser").click(()=>{
     let username = $("#username").text();
     alert(username);
@@ -84,10 +99,11 @@ $("#deleteUser").click(()=>{
     }
     window.location.href = "http://211.232.21.18:7777/";
 })
-$(window).load(function(){
-    popupOpen("http://211.232.21.18:7777/chat.html");
 
-})
+// $(window).load(function(){
+//     popupOpen("http://211.232.21.18:7777/chat.html");
+
+// })
 
 
     $("#test").click(function(){
