@@ -1,0 +1,160 @@
+<!doctype html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>채팅방 - stoneis.pe.kr</title>
+    <link rel='stylesheet' href="/stylesheets/style.css" />
+    <link rel="stylesheet" href="/css/chat.css">
+
+    <script src="/socket.io/socket.io.js"></script>
+
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+
+ 
+</head>
+<body>
+	<!-- 컨텐츠 영역 -->
+	<div id="contents">
+	<h1>채팅방 </h1>
+	<div class="chat_content">
+        <!-- 로그인 영역 -->
+
+		<div class="chat_login">
+			<div class="chat_login_form">
+                    <% if(currentUser) { %>     
+                <input type="text" class="login_input" value="<%=currentUser.username%>" readonly/>&nbsp;&nbsp;<a href="javascript:connection();">접속하기</a>
+                    <% } else { %> 
+                <input type="text" class="login_input" value="비회원" readonly/>&nbsp;&nbsp;<a href="javascript:connection();">접속하기</a> 
+                <% } %>      
+			</div>
+            <div class="now_user_cnt"><strong>현재접속자수</strong> : 
+                <span id="now_user_cnt">-</span></div>
+		<!-- //로그인 영역 -->
+		</div>
+		<!-- 채팅창 영역 -->
+		<div class="chat_form">
+			<div class="chat_list">
+				<strong>STONE : </strong>동해물과 백두산이 마르고 닳도록 하느 마르고 닳도록 하느 <br/>
+				<strong>STONE : </strong>동해물과 백두산이 마르고 닳도록 하느 마르고 닳도록 하느 <br/>
+
+			</div>
+			<div class="chat_user">
+				<div class="chat_user_list">
+					<ul>
+						<li><strong>stone1111</strong></li>
+						<li>stone2222</li>
+						<li>stone3333</li>
+				
+					</ul>
+				</div>
+			</div>
+			<div class="chat_input">
+				<input type="text" class="chat_input_txt" value="대화 글을 입력하세요." onclick="$(this).val('');" />
+			</div>
+			<div class="chat_btn">
+                <a href="javascript:chat_input();">입력</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                <a href="javascript:chat_out();">나가기</a>
+			</div>
+		<!-- //채팅창 영역 -->
+		</div>
+		<!-- 접속로그 영역 -->
+		<div class="chat_history">
+			<div class="chat_history_list">
+				<ul id="chat_logs"></ul>
+			</div>
+		<!-- //접속로그 영역 -->
+		</div>
+	</div>
+	<!-- //컨텐츠 영역 -->
+	</div>
+
+</body>
+</html>
+
+<script>
+
+ var chat_id = '';
+
+var cnt = 0;
+
+var socket = null;
+
+// DOM이 모두 로딩되었을 시 이벤트 발생
+
+$(document).ready(function() {
+    socket = io.connect();
+    //현재 접속자 수를 얻는 소켓 이벤트 
+    socket.on("socket_evt_chat_user", (data) => {
+        data = JSON.parse(Data);
+        cnt = data.length;
+        //현재 접속자 수 표시 
+        $("#now_user_cnt").html(cnt); 
+    });
+
+    
+   // INPUT BOX에 키보드 이벤트가 발생했을 경우 발생
+
+   $('#chat_input').keypress(function(evt){
+
+       // 채팅 글을 입력 후 Enter 키를 눌렀을 경우 메시지 전달 처리 (Socket 통신)
+
+   });
+
+   // 브라우저 즉, 화면을 닫았을 경우 발생
+
+   $(window).unload(function() {
+
+        // 채팅창에서 나가는 로직 처리
+
+        // 채팅글를 초기화하고, 미접속시 영역으로 바뀜
+
+        // 현재 접속자 정보 새로고침 (Socket 통신)
+
+   });
+
+});
+
+// 채팅창 "입력" 버튼 클릭 시
+
+function chat_input() {
+
+     // Socket 통신 메시지 전달
+
+}
+
+// 채팅 "나가기" 버튼 클릭 시
+
+function chat_out() {
+
+     // Socket 통신
+
+     // 처음 상태로 초기화 및 미접속영역으로 노출
+
+}
+
+// 접속하기 처리
+
+function chat_in() {
+
+     // Socket 통신
+
+}
+
+// 현재 접속자 정보 새로고침
+
+function chat_user() {
+
+     // Socket 통신
+
+}
+
+// "접속하기" 버튼 클릭 시에 대한 유효성 체크
+
+function connection() {
+
+     // 유효성 체크 후 성공적인 로그인이라면 미접속영역을 숨기고 채팅창 영역이 
+
+     // 슬라이드 효과로 처리
+
+}
+</script>
