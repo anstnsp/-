@@ -22,9 +22,9 @@
 		<div class="chat_login">
 			<div class="chat_login_form">
                     <% if(currentUser) { %>     
-                <input type="text" class="login_input" value="<%=currentUser.username%>" readonly/>&nbsp;&nbsp;<a href="javascript:connection();">접속하기</a>
+                <input type="text" class="login_input" id="username" value="<%=currentUser.username%>" readonly/>&nbsp;&nbsp;<a href="javascript:connection();">접속하기</a>
                     <% } else { %> 
-                <input type="text" class="login_input" value="비회원" readonly/>&nbsp;&nbsp;<a href="javascript:connection();">접속하기</a> 
+                <input type="text" class="login_input" id="username" value="비회원" readonly/>&nbsp;&nbsp;<a href="javascript:connection();">접속하기</a> 
                 <% } %>      
 			</div>
             <div class="now_user_cnt"><strong>현재접속자수</strong> : 
@@ -34,22 +34,19 @@
 		<!-- 채팅창 영역 -->
 		<div class="chat_form">
 			<div class="chat_list">
-				<strong>STONE : </strong>동해물과 백두산이 마르고 닳도록 하느 마르고 닳도록 하느 <br/>
-				<strong>STONE : </strong>동해물과 백두산이 마르고 닳도록 하느 마르고 닳도록 하느 <br/>
+
 
 			</div>
 			<div class="chat_user">
 				<div class="chat_user_list">
 					<ul>
-						<li><strong>stone1111</strong></li>
-						<li>stone2222</li>
-						<li>stone3333</li>
+
 				
 					</ul>
 				</div>
 			</div>
 			<div class="chat_input">
-				<input type="text" class="chat_input_txt" value="대화 글을 입력하세요." onclick="$(this).val('');" />
+				<input type="text" id="chat_input" class="chat_input_txt" value="대화 글을 입력하세요." onclick="$(this).val('');" />
 			</div>
 			<div class="chat_btn">
                 <a href="javascript:chat_input();">입력</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -72,89 +69,117 @@
 </html>
 
 <script>
-
- var chat_id = '';
-
+//유저아이디
+ var chat_id = $("#username").val();
+//현재 접속자 수 
 var cnt = 0;
+//소켓
+var socket = io();
 
-var socket = null;
+    //유저가 접속하기 버튼을 눌렀을때
+    connectioon();
+    function connectioon (){
+        socket.emit('chat_join',chat_id );
+	$('#chat_list').html('');
+    $('#chat_form_no').slideUp();
+	$('#chat_form').slideDown();
+    }
 
-// DOM이 모두 로딩되었을 시 이벤트 발생
 
-$(document).ready(function() {
-    socket = io.connect();
-    //현재 접속자 수를 얻는 소켓 이벤트 
-    socket.on("socket_evt_chat_user", (data) => {
-        data = JSON.parse(Data);
-        cnt = data.length;
-        //현재 접속자 수 표시 
-        $("#now_user_cnt").html(cnt); 
-    });
+   
 
-    
-   // INPUT BOX에 키보드 이벤트가 발생했을 경우 발생
-
+   // INPUT BOX에 키보드 이벤트가 발생했을 경우 발생   
+   // 채팅 글을 입력 후 Enter 키를 눌렀을 경우 메시지 전달 처리 (Socket 통신)
    $('#chat_input').keypress(function(evt){
-
-       // 채팅 글을 입력 후 Enter 키를 눌렀을 경우 메시지 전달 처리 (Socket 통신)
-
+        if((evt.keyCode || evt.which) == 13) { 
+            chat_input();
+            evt.preventDefault();
+        }
    });
 
-   // 브라우저 즉, 화면을 닫았을 경우 발생
+			// 접속을 성공했을 경우 소켓 이벤트
+			socket.on('chat_conn', function (data) {
+	 			data = JSON.parse(data);
+				cnt = data.length;
+	 			$('#chat_user_list').empty();
+	 			for(var i=0; i<cnt; i++){
+	 				var user_id = data[i];
+					if (user_id == chat_id) {
+		 				$('#chat_user_list').append('<li><strong>' + user_id + ' (me)</strong></li>');
+						$('#chat_id').attr('disabled', true);
+					} else {
+		 				$('#chat_user_list').append('<li>' + user_id + '</li>');
+					}
+	 			}
+				$('#now_user_cnt').html(cnt);
+	 		});
+//    //접속로그 소켓 이벤트 
+//    socket.on("socket_evt_logs", (data) => {
+//        data = JSON.parse(data);
+//        $("#chat_logs").empty();
+       
+//        for(var i=0; i<data.length; i++) {
+//            $("#chat_logs").append('<li>' + data[i].log + '('+ data[i].date+ ')' + '</li>');
+//        }
 
-   $(window).unload(function() {
+//        $(".chat_history_list").scrollTop($("chat_logs").height());
+//    })
 
-        // 채팅창에서 나가는 로직 처리
 
-        // 채팅글를 초기화하고, 미접속시 영역으로 바뀜
-
-        // 현재 접속자 정보 새로고침 (Socket 통신)
-
+   //접속을 종료했을 경우 소켓 이벤트 
+   socket.on("disconnect", (data) => {
+       data = JSON.parse(data);
+       $("#now_user_cnt").html(--cnt);
    });
 
-});
+   	// 서로간의 메시지를 전달하는 경우 소켓 이벤트
+    socket.on('receive message', function (msg) {
+        msg = decodeURIComponent(msg);
+        msg = ((msg.replace(/&/g, '&amp;')).replace(/\"/g, '&quot;')).replace(/\'/g, '&#39;'); 
+        msg = msg.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        $('#chat_list').append('<li>' + msg + '</li>');
+        $('.chat_list').scrollTop($('#chat_list').height()); 
+    });
+    
 
 // 채팅창 "입력" 버튼 클릭 시
 
-function chat_input() {
+// function chat_input() {
+//      // Socket 통신 메시지 전달
+//      var encodedMsg = encodeURIComponent($('#chat_input').val());
+//             //채팅 메시지를 전송합니다.
+//             socket.emit("send message", chat_id , encodedMsg);
+// 			$('#chat_input').val('');
+// }
+// // 채팅 "나가기" 버튼 클릭 시
+// function chat_out() {
+//      // 처음 상태로 초기화 및 미접속영역으로 노출
+//      socket.emit('leave', '{"channel": "workspace", "chat_id":"' + chat_id + '"}');
+// 			$('#chat_id').attr('disabled', false);
+// 			$('#chat_id').val('ID 입력');
+// 			$('#chat_list').html('');
+// 			$('#chat_form').slideUp();
+// 			$('#chat_form_no').slideDown();
+// 			chat_id = '';
+// }
+// // 접속하기 처리
+// function chat_in() {
+//      // Socket 통신
+//      socket.emit('chat_conn', '{"channel": "workspace", "chat_id":"' + chat_id + '"}');
+// 			$('#chat_list').html('');
+// }
+// // "접속하기" 버튼 클릭 시에 대한 유효성 체크
 
-     // Socket 통신 메시지 전달
-
-}
-
-// 채팅 "나가기" 버튼 클릭 시
-
-function chat_out() {
-
-     // Socket 통신
-
-     // 처음 상태로 초기화 및 미접속영역으로 노출
-
-}
-
-// 접속하기 처리
-
-function chat_in() {
-
-     // Socket 통신
-
-}
-
-// 현재 접속자 정보 새로고침
-
-function chat_user() {
-
-     // Socket 통신
-
-}
-
-// "접속하기" 버튼 클릭 시에 대한 유효성 체크
-
-function connection() {
-
-     // 유효성 체크 후 성공적인 로그인이라면 미접속영역을 숨기고 채팅창 영역이 
-
-     // 슬라이드 효과로 처리
-
-}
+//  function connection() {
+//     //유저가 접속하기 버튼을 눌렀을때
+//     socket.emit("chat_join", chat_id);
+//     alert("wefwef");
+//     socket.on("user_join", function(chat_id){
+//         cnt = data.length;
+//         $('#chat_user_list').append('<li>' + user_id + '</li>');
+// 		$('#now_user_cnt').html(cnt);
+//     })
+//  	$('#chat_form_no').slideUp();
+//  	$('#chat_form').slideDown();
+//  }
 </script>

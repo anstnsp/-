@@ -66,15 +66,11 @@
     //
 $("#joinchat").click(()=>{
     let username = $("#username").text();
-    
-
     if(username == "")  username = "비회원";
        
-
-    alert(username);
-   let windowObj = popupOpen("http://211.232.21.18:7777/chat");
-   windowObj.document.getElementById("loginID").value= username;
-   alert(windowObj.document.getElementById("username").value);
+   let windowObj = popupOpen("http://211.232.21.12:7777/chat");
+//    windowObj.document.getElementById("loginID").value= username;
+//    alert(windowObj.document.getElementById("username").value);
 
 })
 $("#deleteUser").click(()=>{
@@ -97,7 +93,7 @@ $("#deleteUser").click(()=>{
     } else {
         return false;
     }
-    window.location.href = "http://211.232.21.18:7777/";
+    window.location.href = "http://211.232.21.12:7777/";
 })
 
 // $(window).load(function(){
@@ -144,7 +140,7 @@ crawling = () =>{
     });
     //팝업호출함수
     function popupOpen2(){
-        let url= "http://211.232.21.18:7777/auth/loginPage";    //팝업창에 출력될 페이지 URL
+        let url= "http://211.232.21.12:7777/auth/loginPage";    //팝업창에 출력될 페이지 URL
         let winWidth = 500;
         let winHeight = 400;
         let top = 210;   //top,left 현재 노트북 기준 정중앙에 맞춤.
