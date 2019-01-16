@@ -103,6 +103,7 @@ app.use("/user", require("./router/user"));
 app.use("/posts", require("./router/post"));
 app.use("/auth", require("./router/auth"));   //인증관련 [jwt] , //로그인 [passport]
 app.use("/crawling", require("./router/crawling"));
+app.use("/chat", require("./router/chat")); 
 
 //404에러 발생시
 app.use( (req,res,next) => {
