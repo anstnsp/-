@@ -14,6 +14,7 @@ exports.readUserList = (req, res) =>{
 
 }
 
+
 //회원가입페이지
 exports.signupPage = (req, res) => {
     res.render("users/new", {user:{}});

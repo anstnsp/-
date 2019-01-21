@@ -5,8 +5,8 @@ const http = require('http').Server(app); //1
 const io = require('socket.io')(http);    //1
 
 
-
 router.get("/", (req,res) => {
+
 
 
     

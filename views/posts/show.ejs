@@ -51,7 +51,7 @@
             <div class="reply_content">
                 <div class="reply_info">작성자 : <%=commentsList[i].name%> /     작성일 : <%=dateFormatChange(commentsList[i].date)%></div>
                 <div class="reply_text">내용 :   <%=commentsList[i].memo%></div>
-
+                <button id="reply_reply">답변달기</button>
                 
             </div>
             <hr>
@@ -111,8 +111,11 @@
  </body>
 </html>
 <script>
+$("#reply_reply").click(() => {
+
+})
+
 function changePage(page) {
-    
            $.get('/posts/reply?id=<%=post._id%>&page='+page+"&max=<%=post.comments.length%>", function(replyList) {
                var output = '';
         

@@ -23,8 +23,8 @@ const app               = express();
 const fs                = require("fs");
 const http              = require("http").Server(app);
 const https             = require("https");
-const port1             = process.env.PORT || 7777;
-const port2             = process.env.PORT || 443;
+const HTTPPORT          = process.env.PORT || 7777;
+const HTTPSPORT         = process.env.PORT || 443;
 const bodyParser        = require("body-parser");
 const mongoose          = require("mongoose");
 const path              = require("path");
@@ -32,15 +32,32 @@ const methodOverriide   = require("method-override");
 const session           = require("express-session");
 const passport          = require("passport");
 const io                = require("socket.io")(http); 
-
-
+const secret            = "finger_pullkey";
+const redis        = require("redis")
+const Chat              = require("./models/Chat");
 //https에 사용할 대칭키 파일
 let options = {
     key : fs.readFileSync("./public/private.pem", "utf8"),
     cert : fs.readFileSync("./public/public.pem","utf8")
 };
+// REDIS (발행자, 구독자)
+var subscriber = redis.createClient(14368,"redis-14368.c82.us-east-1-2.ec2.cloud.redislabs.com");
+var publisher = redis.createClient(14368,"redis-14368.c82.us-east-1-2.ec2.cloud.redislabs.com");
 
-
+subscriber.auth(process.env.REDIS_PASSWORD, (err) => {
+    if(err) {
+        console.log(err);
+    } else {
+        console.log("subscriber redis 서버 연결 성공!")
+    }
+});
+publisher.auth(process.env.REDIS_PASSWORD, (err) => {
+    if(err) {
+        console.log(err);
+    } else {
+        console.log("publisher redis 서버 연결 성공!!")
+    }
+});
 /* ===========================
 || CONNECT TO MONGODB SERVER ||
 =============================*/
@@ -131,7 +148,113 @@ app.use((err,req,res,next) => {
         error : err
     })
 });
+let users = [];
+io.sockets.on('connection', function (socket) {
+	// 최초 접속시 호출
+	socket.on('chat_user', function (raw_msg) {
+		var msg = JSON.parse(raw_msg);
+		var channel = '';
+		if(msg["channel"] != undefined) {
+			channel = msg["channel"];
+		}
+		socket.emit('socket_evt_chat_user', JSON.stringify(users));
+		
+		Chat.find({}, function (err, logs) {
+			socket.emit('socket_evt_logs', JSON.stringify(logs));
+			socket.broadcast.emit('socket_evt_logs', JSON.stringify(logs));
+		});
+	});
 
+	//사용자가 접속했을 때의 상황 처리
+	socket.on('chat_conn', function (raw_msg) {
+		var msg = JSON.parse(raw_msg);
+		var channel = '';
+		if(msg['channel'] != undefined) {
+			channel = msg['channel'];
+        }
+       // SocketIO('workspace', msg.workspace);
+		//socket.set('workspace', msg.workspace);
+		var index = users.indexOf(msg.chat_id);
+		if (index != -1) {
+			socket.emit('chat_fail', JSON.stringify(msg.chat_id));
+		} else {
+			users.push(msg.chat_id);
+			socket.broadcast.emit('chat_join', JSON.stringify(users));
+			socket.emit('chat_join', JSON.stringify(users));
+			let chat = new Chat();
+			chat.log = msg.chat_id + ' 접속하셨습니다.';
+			chat.date = getToday();
+			chat.save(function (err) {
+				if (err)
+					return handleError(err);
+				
+                    Chat.find({}, function (err, logs) {
+					socket.emit("socket_evt_logs", JSON.stringify(logs));
+					socket.broadcast.emit("socket_evt_logs", JSON.stringify(logs));
+				});
+			});
+		}
+	});
+	
+	//사용자가 메시지를 보냈을 때의 상황 처리
+	socket.on('message', function (raw_msg) {
+		var msg = JSON.parse(raw_msg);
+		var channel = '';
+		if(msg['channel'] != undefined) {
+			channel = msg['channel'];
+		}
+		if (channel == 'chat') {
+			var chatting_message = msg.chat_id + ' : ' + msg.message;
+			publisher.publish('chat', chatting_message);
+		}
+	});
+	
+	//사용자가 채팅방을 나갔을 때의 상황 처리
+	socket.on('leave', function (raw_msg) {
+		var msg = JSON.parse(raw_msg);
+		if (msg.chat_id != '' && msg.chat_id != undefined) {
+			var index = users.indexOf(msg.chat_id);
+			socket.emit('someone_leaved', JSON.stringify(msg.chat_id));
+			socket.broadcast.emit('someone_leaved', JSON.stringify(msg.chat_id));
+			users.splice(index, 1);
+			let chat = new Chat();
+			chat.log = msg.chat_id + '님이 나가셨습니다.';
+			chat.date = getToday();
+			chat.save(function (err) {
+				if (err)
+					return handleError(err);
+			
+                    Chat.find({}, function (err, logs) {
+					socket.emit('socket_evt_logs', JSON.stringify(logs));
+					socket.broadcast.emit('socket_evt_logs', JSON.stringify(logs));
+				});
+			});
+		}
+		socket.emit('refresh_userlist', JSON.stringify(users));
+		socket.broadcast.emit('refresh_userlist', JSON.stringify(users));
+	});
+	
+	//구독자 객체가 메시지를 받으면 소켓을 통해 메시지를 전달
+	subscriber.on('message', function (channel, message) {
+		socket.emit('message_go', message);
+	});
+   
+	//구독자 객체는 'chat'을 구독 시작
+	subscriber.subscribe('chat');
+}); 
+
+// 현재 시간 얻기
+function getToday() {
+	var date = new Date();
+	return date.getFullYear() +'.'+ (date.getMonth()+1) +'.'+ date.getDate() +' '+ date.getHours() +':'+ date.getMinutes() +':'+date.getSeconds();
+}
+
+// SOCKET 연결 끊어질 시 호출
+io.sockets.on('close', function (socket) {
+	subscriber.unsubscribe();
+	publisher.close();
+	subscriber.close();
+});
 
 
 //채팅서버 포트 => 3000
@@ -141,7 +264,7 @@ app.use((err,req,res,next) => {
 
 
 //http웹서버 포트 => 7777
-http.listen(port1, err =>{
+http.listen(HTTPPORT, err =>{
   if(err) console.log(err);
   else console.log("Server is running at 7777 port!!");
 })
