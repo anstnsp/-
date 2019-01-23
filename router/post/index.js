@@ -2,6 +2,8 @@ const router = require("express").Router();
 const controller = require("./post.constroller");
 
 
+
+
 //게시물 댓글불러오기
 router.get("/reply", controller.readComments)
 //게시물검색 

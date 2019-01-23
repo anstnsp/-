@@ -33,7 +33,7 @@ const session           = require("express-session");
 const passport          = require("passport");
 const io                = require("socket.io")(http); 
 const secret            = "finger_pullkey";
-const redis        = require("redis")
+const redis        		= require("redis")
 const Chat              = require("./models/Chat");
 //https에 사용할 대칭키 파일
 let options = {
@@ -61,9 +61,9 @@ publisher.auth(process.env.REDIS_PASSWORD, (err) => {
 /* ===========================
 || CONNECT TO MONGODB SERVER ||
 =============================*/
-console.log(process.env.MONGODB_URL);
+console.log(process.env.REMOTE_MONGODB_URI);
 mongoose.Promise = global.Promise;
-mongoose.connect(process.env.MONGODB_URL, {useNewUrlParser : true});
+mongoose.connect(process.env.REMOTE_MONGODB_URI, {useNewUrlParser : true});
 const db = mongoose.connection;
 db.once('open', ()=>{
   console.log("DB connected!!");
