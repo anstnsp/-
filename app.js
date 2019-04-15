@@ -41,8 +41,8 @@ let options = {
     cert : fs.readFileSync("./public/public.pem","utf8")
 };
 // REDIS (발행자, 구독자)
-var subscriber = redis.createClient(14368,"redis-14368.c82.us-east-1-2.ec2.cloud.redislabs.com");
-var publisher = redis.createClient(14368,"redis-14368.c82.us-east-1-2.ec2.cloud.redislabs.com");
+var subscriber = redis.createClient(12684,"redis-12684.c80.us-east-1-2.ec2.cloud.redislabs.com");
+var publisher = redis.createClient(12684,"redis-12684.c80.us-east-1-2.ec2.cloud.redislabs.com");
 
 subscriber.auth(process.env.REDIS_PASSWORD, (err) => {
     if(err) {

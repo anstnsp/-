@@ -52,10 +52,6 @@
 
 *.sqlite
 
-*.env
-
-.env-local
- 
 
 # OS generated files #
 
